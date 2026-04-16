@@ -123,7 +123,7 @@ This isn't a general-purpose framework. It reflects the author's opinions on des
 ## Installation
 
 ```
-git clone https://github.com/cschnetzler/design-framework.git
+git clone https://github.com/carolineschnetzler/design-framework.git
 cd design-framework
 ```
 
@@ -150,4 +150,4 @@ The framework is built on three assumptions:
 
 ## Feedback
 
-If you're using this or an adaptation of it, feedback is welcome. Open an issue on [GitHub](https://github.com/cschnetzler/design-framework).
+If you're using this or an adaptation of it, feedback is welcome. Open an issue on [GitHub](https://github.com/carolineschnetzler/design-framework).
