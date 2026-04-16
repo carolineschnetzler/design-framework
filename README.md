@@ -1,4 +1,4 @@
-# PureMath Design Framework
+# Design Framework
 
 An AI-native design framework built on [Claude Code](https://claude.com/claude-code). It structures how a designer collaborates with AI agents to run discovery, critique, visual execution, and engineering handoff — with opinionated defaults about taste, Figma canvas quality, and cross-project design memory.
 
