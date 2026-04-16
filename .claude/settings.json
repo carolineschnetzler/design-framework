@@ -1,0 +1,41 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ./hooks/session-init.sh"
+          },
+          {
+            "type": "prompt",
+            "prompt": "The session has started. Read the framework status printed above. Then:\n\n1. If an active project has a taste-profile.md, read it silently and keep its signals in mind for this session.\n2. If taste-profile.md exists, read it silently for cross-project strong opinions, soft patterns, and anti-patterns.\n3. Check the routing rules in CLAUDE.md to understand how to handle the user's first message.\n\nDo not print a summary of what you loaded. Just be ready. If there are no projects yet, wait for the user's instruction."
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "mcp__figma__use_figma",
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "The Figma canvas was just edited. Verify the edit follows the standards in .claude/skills/tools/figma-canvas/SKILL.md:\n\n1. Semantic tokens used — no raw hex, no primitive-only bindings. Variables should describe purpose (background/card) not value (neutral/800).\n2. Auto layout applied to all layout frames. Absolute positioning only for documented exceptions (badges, tooltips, floating controls, decorative elements).\n3. Layer naming follows convention: Title-Kebab-Case for frames, PascalCase/slashes for components, lowercase-kebab for primitives.\n4. Component instances used where available — no recreated components.\n5. Slots used for open-ended content areas in new components.\n6. State variants defined for interactive elements.\n\nIf any violations are found, fix them immediately. Do not report to the user unless the violation required a design decision they need to make (e.g., a missing semantic token that needs to be created)."
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "If design work was performed this turn (Figma canvas edits, design decisions, taste calibration), check whether the active project's design-state.md should be updated with new decisions. If so, append to the Decisions Log with the date and a brief description of what was decided and why. Do not ask the user — just update silently if there are meaningful decisions to record."
+          }
+        ]
+      }
+    ]
+  }
+}

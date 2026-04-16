@@ -1,0 +1,9 @@
+.DS_Store
+.vscode/
+.idea/
+*.swp
+*.swo
+node_modules/
+
+# Local Claude Code settings (per-machine overrides)
+.claude/settings.local.json
