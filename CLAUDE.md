@@ -22,6 +22,7 @@ The user may invoke these commands. When they do, invoke the matching workflow s
 - `/review` — Run a design critique against brief, taste, and accessibility
 - `/retro` — Post-project reflection, feeds learnings into design memory
 - `/audit` — Check framework against latest Claude Code and Figma MCP capabilities
+- `/sync-tokens` — Pull live design tokens from a project's Figma file and write them as CSS custom properties to the project's stylesheet (Figma is the source of truth, local design-system.md is documentation)
 
 When the user does not use a command, interpret their natural language and route to the appropriate skill or agent.
 
@@ -60,7 +61,7 @@ Route to the right agent based on the task:
 | Competitive research, pattern analysis, visual references | design-scout |
 | Layout, typography, color, Figma canvas work | design-lead |
 | UI copy, labels, error messages | content-writer |
-| Animation specs, transitions, prototyping | motion-designer |
+| Animation specs, transitions, Figma canvas prototypes | motion-designer |
 | WCAG compliance, inclusive design audit | accessibility-reviewer |
 | Critique against brief, find gaps | design-critic |
 | Usability, intuitiveness evaluation | heuristic-evaluator |
@@ -71,11 +72,12 @@ Route to the right agent based on the task:
 ## Project Structure
 
 Each project lives in `projects/<name>/` with:
-- `design-system.md` — Design tokens, typography, color, spacing rules
+- `design-system.md` — Design tokens, typography, color, spacing rules (documentation; tokens live in Figma)
 - `design-tokens.json` — Machine-readable tokens
 - `taste-profile.md` — Aesthetic preferences for this project
 - `design-state.md` — Running decisions log, open questions, design debt
 - `design-brief.md` — Problem, users, direction (output of /discover)
+- `figma.json` — Project's Figma fileKey + paths needed by `/sync-tokens` and other Figma-aware skills
 
 ---
 
@@ -125,6 +127,35 @@ Before creating or modifying any design in Figma, complete these checks in order
 6. **Minimize frame nesting.** Don't wrap frames in frames unless auto layout requires a different direction, spacing, or alignment. One level is almost always enough.
 7. **Never modify variable scopes on existing variables.** When creating new variables, set scopes explicitly. But never change scopes on variables that already exist — this can break the entire design system's picker visibility.
 8. **Not everything should be a component.** Content-specific elements (like range sliders with custom tick positions) work better as structured frames. Componentize patterns, not content.
+
+---
+
+## Prototyping
+
+This framework produces Figma artifacts and engineering specs. It does **not** produce interactive code prototypes directly.
+
+When the user asks for a working prototype (clickable multi-screen flow for user research, stakeholder demos, or design validation):
+
+### CRITICAL: Never Generate Standalone HTML Prototypes
+
+Do not produce standalone HTML/CSS/JS files. Standalone HTML reinvents the design system from scratch every prototype, produces brittle multi-screen behavior, loses fidelity to the Figma source, and looks low-quality. The Figma MCP server's output is structured for component-based frameworks; translating it to vanilla HTML is where fidelity dies.
+
+### Required Substrate
+
+Prototypes must live inside a host project that already contains the project's design system as code components. If no such host project exists for the active project, scaffold one as a one-time setup — do not attempt to produce a prototype without it.
+
+The host project's stack is determined by what the project already uses or what fits its production codebase. The principle is component-based and token-aware, not a specific framework.
+
+### Workflow
+
+1. Read the Figma frame via the Figma MCP server (`get_design_context`).
+2. Paste the returned code near-verbatim into the host project. Swap only assets and event handlers; do not re-architect markup, layout, or styling. (See cross-project memory: paste MCP output verbatim.)
+3. For multi-screen flows, wire minimal routing between screens. Never invent UI not present in Figma.
+4. Run the host project's dev server and verify the result in a browser before reporting the task complete. Never claim a prototype works without testing it.
+
+### Code Connect
+
+Code Connect mappings (`.figma.tsx` files) are a maturity step, not a prerequisite. They make the loop seamless by letting the MCP server return the project's actual component imports instead of raw markup, but they require stable component APIs to be worth maintaining. Do not propose Code Connect setup until the project's component library has stabilized.
 
 ---
 

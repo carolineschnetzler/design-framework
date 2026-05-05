@@ -35,7 +35,7 @@ design-framework/
 │   │   ├── design-lead.md           # Layout, typography, color — primary Figma author
 │   │   ├── design-builder.md        # Production-ready cleanup + handoff spec
 │   │   ├── design-critic.md         # Critique against brief, taste, principles
-│   │   ├── motion-designer.md       # Transitions, prototypes, motion specs
+│   │   ├── motion-designer.md       # Transitions, Figma canvas prototypes, motion specs
 │   │   ├── content-writer.md        # UI copy — labels, errors, microcopy
 │   │   ├── heuristic-evaluator.md   # Usability, Nielsen heuristics
 │   │   └── accessibility-reviewer.md # WCAG compliance, inclusive design
@@ -117,6 +117,8 @@ When new models release, update the mapping once — every agent inherits automa
 - **Teams building AI design tools** who want a reference for how agents, skills, hooks, and memory interact in production
 
 This isn't a general-purpose framework. It reflects the author's opinions on design process, Figma practice, and what AI agents should and shouldn't own. The parts most likely to generalize — the canvas standards and the design-memory schema — are in `docs/` as standalone documents.
+
+**What this framework does not do:** It produces Figma artifacts and engineering specs, not interactive code prototypes. For working prototypes, agents are directed to a separate host project that already contains the design system as code components. See the Prototyping section in `CLAUDE.md` for details.
 
 ---
 
