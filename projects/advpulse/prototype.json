@@ -1,0 +1,10 @@
+{
+  "hostProjectPath": "/Users/cschnetzler/advpulse-prototype",
+  "stack": "Vite + React 19 + TypeScript + Tailwind 3 + react-router-dom 7",
+  "screensDir": "/Users/cschnetzler/advpulse-prototype/src/screens",
+  "componentsDir": "/Users/cschnetzler/advpulse-prototype/src/components",
+  "tokensCss": "/Users/cschnetzler/advpulse-prototype/src/index.css",
+  "devCommand": "npm run dev",
+  "fixedCanvasWidth": 1440,
+  "deployTarget": "Vercel preview (not yet wired)"
+}

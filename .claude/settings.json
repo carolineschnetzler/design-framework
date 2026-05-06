@@ -24,6 +24,15 @@
             "prompt": "The Figma canvas was just edited. Verify the edit follows the standards in .claude/skills/tools/figma-canvas/SKILL.md:\n\n1. Semantic tokens used — no raw hex, no primitive-only bindings. Variables should describe purpose (background/card) not value (neutral/800).\n2. Auto layout applied to all layout frames. Absolute positioning only for documented exceptions (badges, tooltips, floating controls, decorative elements).\n3. Layer naming follows convention: Title-Kebab-Case for frames, PascalCase/slashes for components, lowercase-kebab for primitives.\n4. Component instances used where available — no recreated components.\n5. Slots used for open-ended content areas in new components.\n6. State variants defined for interactive elements.\n\nIf any violations are found, fix them immediately. Do not report to the user unless the violation required a design decision they need to make (e.g., a missing semantic token that needs to be created)."
           }
         ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ./hooks/prototype-drift-check.sh"
+          }
+        ]
       }
     ],
     "Stop": [

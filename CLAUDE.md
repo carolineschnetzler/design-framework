@@ -23,6 +23,7 @@ The user may invoke these commands. When they do, invoke the matching workflow s
 - `/retro` — Post-project reflection, feeds learnings into design memory
 - `/audit` — Check framework against latest Claude Code and Figma MCP capabilities
 - `/sync-tokens` — Pull live design tokens from a project's Figma file and write them as CSS custom properties to the project's stylesheet (Figma is the source of truth, local design-system.md is documentation)
+- `/figma-to-prototype` — Build or extend an interactive code prototype from Figma frames using the verbatim-paste pipeline. Requires the active project to have `prototype.json` pointing at a host React project.
 
 When the user does not use a command, interpret their natural language and route to the appropriate skill or agent.
 
@@ -46,8 +47,9 @@ Before responding to any design-related message, check:
 | 4 | design-review | User asks to review/check/critique |
 | 5 | design-debate | User is unsure between directions |
 | 6 | handoff | User asks to prepare for engineering / Frontend Engineer |
-| 7 | retrospective | User says a project is done or wants to reflect |
-| 8 | audit | User asks to check for framework updates |
+| 7 | figma-to-prototype | User asks to build/extend an interactive code prototype from Figma frames |
+| 8 | retrospective | User says a project is done or wants to reflect |
+| 9 | audit | User asks to check for framework updates |
 
 ---
 
@@ -78,6 +80,7 @@ Each project lives in `projects/<name>/` with:
 - `design-state.md` — Running decisions log, open questions, design debt
 - `design-brief.md` — Problem, users, direction (output of /discover)
 - `figma.json` — Project's Figma fileKey + paths needed by `/sync-tokens` and other Figma-aware skills
+- `prototype.json` — Pointer to the project's host React prototype repo and its conventions. Required for `/figma-to-prototype`. The host project itself lives outside the framework directory (e.g., `/Users/cschnetzler/advpulse-prototype`); the framework points at it rather than containing it, so dependencies and git history stay isolated.
 
 ---
 
@@ -156,6 +159,10 @@ The host project's stack is determined by what the project already uses or what 
 ### Code Connect
 
 Code Connect mappings (`.figma.tsx` files) are a maturity step, not a prerequisite. They make the loop seamless by letting the MCP server return the project's actual component imports instead of raw markup, but they require stable component APIs to be worth maintaining. Do not propose Code Connect setup until the project's component library has stabilized.
+
+### Operational details: see the skill, not this section
+
+The full operational pipeline (pre-flight Figma readiness audit, canonical-component-first build order, screenshot diff cadence, halt-for-review gates, authoring mode rules) lives in `.claude/skills/workflows/figma-to-prototype/SKILL.md`. Invoke `/figma-to-prototype` to use it. A `PostToolUse` hook at `hooks/prototype-drift-check.sh` programmatically catches drift on every Write/Edit to a prototype screen file — text rules in this CLAUDE.md are not the enforcement layer; the hook is.
 
 ---
 
