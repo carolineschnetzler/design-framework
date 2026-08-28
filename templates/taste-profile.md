@@ -5,6 +5,10 @@
 
 ---
 
+> **What belongs in this file:** aesthetic decisions specific to **this product**. Anything that would still hold for a different client and a different medium belongs in the root `taste-profile.md` instead.
+>
+> The test is real. One project may use large radii and reject glass; another may use zero radius and embrace it. An opinion that flips between two products was never cross-project memory. When in doubt, put it here — a project profile is cheap to write and safe to contradict.
+
 ## Emotional Target
 
 [1-2 sentences. How should the product feel to use? Use tension pairs to be precise: "sophisticated but not cold," "data-dense but approachable," "fast but not frantic."]

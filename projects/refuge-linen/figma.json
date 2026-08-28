@@ -1,0 +1,5 @@
+{
+  "fileKey": "JWZnZgu9UeAfzzksjZqK5r",
+  "_note": "Packaging file. This sits in a team where the seat is view-only: MCP writes are refused and reads are capped. Duplicating does not help, since the seat follows the team. Edits go through the local plugin in ~/refugelinen/figma-plugins.",
+  "_comment": "Page-level IDs only, once identified."
+}

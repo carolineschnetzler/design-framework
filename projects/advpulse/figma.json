@@ -1,8 +1,9 @@
 {
   "fileKey": "kFyd7XSbESiizgbP6u8jAF",
-  "tokenOutputPath": "/Users/cschnetzler/advpulse/prototype/src/index.css",
+  "tokenOutputPath": "~/advpulse/prototype/src/index.css",
   "componentsPageNodeId": "12:611",
   "iconsPageNodeId": "12:610",
   "logoPageNodeId": "143:425",
-  "screensPageNodeId": "0:1"
+  "screensPageNodeId": "0:1",
+  "_comment": "Page-level IDs only. Screen and component IDs are never recorded here \u2014 they shift, and the Figma file is the only source of truth for what exists."
 }

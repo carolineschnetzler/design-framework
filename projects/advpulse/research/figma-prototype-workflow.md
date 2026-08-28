@@ -222,7 +222,7 @@ Concrete asks before tomorrow.
 
 Yes — three things:
 
-1. **A new skill at `.claude/skills/workflows/figma-to-prototype/SKILL.md`** that codifies the verbatim recipe. Its first instruction: *"If you are about to type JSX from scratch instead of pasting MCP output, stop."*
+1. **A new skill at `.claude/skills/workflows/prototype/SKILL.md` (renamed from `figma-to-prototype` in the 2026-08-28 refresh)** that codifies the verbatim recipe. Its first instruction: *"If you are about to type JSX from scratch instead of pasting MCP output, stop."*
 2. **A pre-screen audit checklist** added to `CLAUDE.md` for prototype work (mirrors the existing Pre-Flight checklist for Figma writes).
 3. **A `projects/<name>/prototype/` convention** in the framework — where the code prototype lives alongside `design-brief.md`, `design-system.md`, etc. Bonus: shared tokens auto-sync from `design-tokens.json`.
 

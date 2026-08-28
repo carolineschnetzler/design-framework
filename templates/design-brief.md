@@ -57,6 +57,29 @@
 
 ---
 
+## Design Systems
+
+[Most products have more than one. A product app and its marketing surfaces usually diverge in type and color, and they should. A physical product has a print system and a web system. If this project genuinely has one, say so and delete the table.]
+
+| Surface | System | Source of truth |
+|---|---|---|
+| [which surfaces] | [system name] | [doc] |
+| [which surfaces] | [system name] | [doc] |
+
+**What they share:** [Name every shared value exhaustively. Usually one accent color and nothing else. "They share the palette" is not an answer.]
+
+**Pick the system by surface, then adhere strictly.** Never use one system's faces or palette inside the other's surfaces. The usual sanctioned exception is a real product screenshot inside a marketing layout: the screenshot keeps product styling, the frame around it uses brand styling.
+
+**Within the chosen system, no values outside what its doc defines.** If a token or style doesn't exist for what the design needs, flag it — do not improvise. Cross-project taste informs preferences but does not override either system.
+
+### Project-Specific Design Decisions
+
+[Decisions that override or specialize the cross-project taste profile. Radius, material treatment, button style, theme — anything that would be wrong on a different product belongs here, not in cross-project memory.]
+
+- **[Decision]** — [why, and what it overrides]
+
+---
+
 ## Success Criteria
 
 [How will we know this design worked? List specific, observable outcomes.]
