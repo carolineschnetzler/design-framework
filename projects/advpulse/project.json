@@ -1,0 +1,16 @@
+{
+  "name": "AdvPulse",
+  "summary": "B2B sales intelligence for financial services. Distribution teams find, qualify, and reach RIA firms from public filings.",
+  "status": "active",
+  "designSystems": [
+    { "name": "Product UI", "governs": "the application, every in-app screen", "doc": "design-system.md" },
+    { "name": "Brand / Marketing", "governs": "logo, marketing site, pitch, social, print, lifecycle email", "doc": "brand-guidelines.md" }
+  ],
+  "sharedAcrossSystems": ["the accent green"],
+  "handoffTarget": {
+    "kind": "changelog",
+    "path": "design-changes.md",
+    "note": "The implementing engineer reads a running change log plus comments left on the design file. Opt-in only — see the changelog skill."
+  },
+  "canonicalDocs": {}
+}

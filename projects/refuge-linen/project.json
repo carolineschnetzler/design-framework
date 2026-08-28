@@ -1,0 +1,17 @@
+{
+  "name": "Refuge Mountain Linen",
+  "summary": "Client engagement. Shopify storefront, packaging, and print system for a linen brand.",
+  "status": "active",
+  "designSystems": [
+    { "name": "Web / storefront", "governs": "the Shopify theme and landing pages", "doc": "~/refugelinen/PROJECT.md" },
+    { "name": "Print / packaging", "governs": "packaging, dielines, printed collateral", "doc": "~/refugelinen/refuge-print-system" }
+  ],
+  "handoffTarget": { "kind": "repo", "path": "~/refugelinen/dev-handoff" },
+  "canonicalDocs": {
+    "projectState": "~/refugelinen/PROJECT.md",
+    "printSystem": "~/refugelinen/refuge-print-system",
+    "theme": "~/refugelinen/refuge-theme",
+    "plugins": "~/refugelinen/figma-plugins"
+  },
+  "note": "Canonical state lives at ~/refugelinen/PROJECT.md. Read from there."
+}

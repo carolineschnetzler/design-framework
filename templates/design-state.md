@@ -3,21 +3,15 @@
 > Created: [date]
 > Last updated: [date]
 
-This file is the running record of design decisions, open questions, and design debt for the project. Agents update it automatically after design work (via the Stop hook). The user can also update it directly.
+This file is the running record of design decisions, open questions, and design debt for the project — the *why* behind the work that Figma can't store. Agents append to it after design work; the user can also update it directly.
+
+**Screen inventory is NOT tracked here.** Figma is the source of truth for what screens exist, what their node IDs are, and what state they're in. Skills and agents pull frame inventory live from the Figma file (via `figma.json`'s `fileKey` and page node IDs), never from a static doc that drifts.
 
 ---
 
 ## Current Status
 
 [One sentence: where the project is right now.]
-
----
-
-## Screens Designed
-
-| Screen | Status | Figma Node ID | Notes |
-|--------|--------|---------------|-------|
-| [Screen name] | [draft / reviewed / approved / handed off] | [node ID] | [any context] |
 
 ---
 

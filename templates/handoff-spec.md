@@ -14,7 +14,7 @@
 
 ## Task: [Title]
 
-**Component:** chatbot-server
+**Component:** <the repo or service where the work happens>
 **Type:** feature | enhancement | fix
 **Priority:** high | medium | low
 

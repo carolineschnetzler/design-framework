@@ -1,187 +1,169 @@
-# PureMath Design Framework
+# Design Framework
 
-You are part of a design agent framework for PureMath's design consultancy. This file governs how you behave in every session. The user is the sole product designer, product manager, and creative director. They give direction — you execute.
+A framework for designing and building products with Claude Code. This file governs every session run from this directory or against a project registered here.
 
----
-
-## Model Strategy
-
-Role-based model assignments. When new models release, update only these mappings — all agents inherit from here.
-
-- **creative**: `claude-opus-4-6` — Subjective design decisions, visual judgment, strategic thinking
-- **analytical**: `claude-sonnet-4-6` — Research, review, structured evaluation, compliance checking
+The user is the designer and creative director. They set direction and make the design decisions. You do the scaffolding, the execution, and the parts that are mechanical.
 
 ---
 
-## User Commands
+## The one principle that keeps this framework useful
 
-The user may invoke these commands. When they do, invoke the matching workflow skill.
+**This framework owns judgment and process. It does not own vendor APIs.**
 
-- `/discover` — Start a new design project (brief, users, constraints)
-- `/taste` — Build or update aesthetic preferences
-- `/review` — Run a design critique against brief, taste, and accessibility
-- `/retro` — Post-project reflection, feeds learnings into design memory
-- `/audit` — Check framework against latest Claude Code and Figma MCP capabilities
-- `/sync-tokens` — Pull live design tokens from a project's Figma file and write them as CSS custom properties to the project's stylesheet (Figma is the source of truth, local design-system.md is documentation)
-- `/figma-to-prototype` — Build or extend an interactive code prototype from Figma frames using the verbatim-paste pipeline. Requires the active project to have `prototype.json` pointing at a host React project.
+Design tooling moves faster than any document in this repo can. Figma ships and maintains its own skills for its MCP server; Claude Code ships its own capabilities. Both change continuously. Anything this framework restates about them starts rotting immediately.
 
-When the user does not use a command, interpret their natural language and route to the appropriate skill or agent.
+So:
 
----
+- **Never restate a vendor's API surface here.** Load the vendor's own current skill instead. For Figma that means `figma-use` before any write, plus `figma-generate-design`, `figma-generate-library`, `figma-design-to-code`, and `figma-code-connect` for their respective jobs.
+- **Never enumerate tool names as a permanent list.** Agents inherit the tools available to them, so new capability arrives automatically. Where an agent must be constrained, express the *intent* — "you are read-only" — in prose and in `disallowedTools`, not as an allowlist that goes stale the moment a tool is added.
+- **When a vendor skill and this framework appear to conflict: the vendor wins on mechanics, this framework wins on policy.** How to bind a variable is theirs. Whether a raw hex is ever acceptable is ours.
+- **When you notice this framework is behind**, say so in the session and offer `/audit`. Do not quietly work around it.
 
-## Routing Rules
-
-Before responding to any design-related message, check:
-
-1. **Is there an active project?** Check `projects/` for the current project folder. If none, ask the user which project or suggest `/discover`.
-2. **Has discovery been done?** If no design-brief.md exists, route to `/discover` first.
-3. **Does the project have a taste profile?** If not, check if the design-brief.md contains project-specific design decisions. If it does, a separate taste profile is not needed — the brief and design system are the sources of truth. Only suggest `/taste` if neither exists.
-
-### Skill Priority (when multiple could apply)
-
-| Priority | Skill | Trigger |
-|----------|-------|---------|
-| 1 | discovery | No design brief exists for this project |
-| 2 | design-taste | No taste profile, or the user says output feels off |
-| 3 | generate-screen | User asks to design/create/build a screen |
-| 4 | design-review | User asks to review/check/critique |
-| 5 | design-debate | User is unsure between directions |
-| 6 | handoff | User asks to prepare for engineering / Frontend Engineer |
-| 7 | figma-to-prototype | User asks to build/extend an interactive code prototype from Figma frames |
-| 8 | retrospective | User says a project is done or wants to reflect |
-| 9 | audit | User asks to check for framework updates |
+What belongs here is what does not expire: taste, principles, process sequencing, quality standards, project structure, and the specific traps this framework has actually hit.
 
 ---
 
-## Agent Dispatch
+## Models
 
-Route to the right agent based on the task:
+Agents declare a real model in their frontmatter — `opus` for subjective and creative judgment, `sonnet` for research, review, and structured evaluation. Update the individual agent files when the model lineup changes; there is no indirection layer, because an indirection layer that silently doesn't work is worse than none.
 
-| Task Type | Agent |
-|-----------|-------|
+---
+
+## Commands
+
+| Command | What it does |
+|---|---|
+| `/discover` | Define the problem, users, principles, and direction. Writes the brief. |
+| `/taste` | Build or update the project's aesthetic profile from references and conversation |
+| `/generate-screen` | Design a screen against the brief, taste, and system |
+| `/prototype` | Build or extend a running artifact in the project's declared stack |
+| `/review` | Parallel critique: design, usability, accessibility |
+| `/design-debate` | Force competing directions to argue before choosing |
+| `/design-feedback` | Work a batch of comments or annotations the user left by pointing |
+| `/sync-tokens` | Pull live variables from the design file into the code token layer |
+| `/audit-system` | Audit a design system for drift, duplication, and missing states |
+| `/handoff` | Clean the file and write the engineering spec |
+| `/changelog` | Append a change to the engineering log — **explicit request only** |
+| `/retro` | Reflect, and feed learnings into cross-project memory |
+| `/audit` | Check this framework against current Claude Code and vendor capabilities |
+
+When the user doesn't use a command, interpret their intent and route to the matching skill or agent.
+
+---
+
+## Routing
+
+Before responding to design work, check:
+
+1. **Is there an active project?** Look in `projects/`. If none matches, ask which project, or suggest `/discover`.
+2. **Does it have a brief?** If no `design-brief.md`, route to `/discover` first.
+3. **Does it have taste established?** A project taste profile or a brief containing project-specific design decisions both count. Only suggest `/taste` if neither exists.
+4. **Which of the project's design systems applies?** Many products have more than one. See below.
+
+### Skill priority when several could apply
+
+discovery → design-taste → generate-screen → prototype → design-review → design-debate → handoff → retrospective → audit
+
+---
+
+## Agents
+
+| Task | Agent |
+|---|---|
 | Problem definition, strategy, principles | design-strategist |
 | Competitive research, pattern analysis, visual references | design-scout |
-| Layout, typography, color, Figma canvas work | design-lead |
+| Layout, typography, color, canvas composition | design-lead |
+| Tokens, variables, component libraries, variant architecture | design-systems-engineer |
+| Running prototypes in any stack | prototype-engineer |
 | UI copy, labels, error messages | content-writer |
-| Animation specs, transitions, Figma canvas prototypes | motion-designer |
-| WCAG compliance, inclusive design audit | accessibility-reviewer |
-| Critique against brief, find gaps | design-critic |
-| Usability, intuitiveness evaluation | heuristic-evaluator |
-| Production-ready Figma output, code handoff | design-builder |
+| Animation specs, transitions, canvas prototypes | motion-designer |
+| WCAG compliance, inclusive design | accessibility-reviewer |
+| Critique against brief and taste | design-critic |
+| Usability and intuitiveness | heuristic-evaluator |
+| Production-ready output, engineering handoff | design-builder |
+
+Reviewers are read-only by design. They report; the user decides; a builder executes.
 
 ---
 
-## Project Structure
+## Project structure
 
-Each project lives in `projects/<name>/` with:
-- `design-system.md` — Design tokens, typography, color, spacing rules (documentation; tokens live in Figma)
-- `design-tokens.json` — Machine-readable tokens
-- `taste-profile.md` — Aesthetic preferences for this project
-- `design-state.md` — Running decisions log, open questions, design debt
-- `design-brief.md` — Problem, users, direction (output of /discover)
-- `figma.json` — Project's Figma fileKey + paths needed by `/sync-tokens` and other Figma-aware skills
-- `prototype.json` — Pointer to the project's host React prototype repo and its conventions. Required for `/figma-to-prototype`. The host project itself lives outside the framework directory (e.g., `/Users/cschnetzler/advpulse-prototype`); the framework points at it rather than containing it, so dependencies and git history stay isolated.
+Each project lives in `projects/<name>/`:
 
----
+| File | Purpose |
+|---|---|
+| `project.json` | What this project is, who implements it, where its canonical docs live |
+| `design-brief.md` | Problem, users, principles, direction, constraints |
+| `design-system.md` | Tokens, type, spacing, component inventory — documentation; the design file is the source of truth |
+| `taste-profile.md` | Aesthetic preferences specific to this project |
+| `design-state.md` | Running decisions log, open questions, design debt |
+| `design-changes.md` | Engineering changelog — only written via `/changelog` |
+| `figma.json` | File key and page node IDs |
+| `prototype.json` | Host project path, stack, and paths the drift check guards |
 
-## Cross-Project Design Memory
+**A project's canonical docs may live outside this repo.** When they do, `project.json` points at them and the framework reads from there. Do not duplicate a canonical doc into `projects/` — a copy is a future contradiction. Pointers, not copies.
 
-Persistent taste memory lives at `taste-profile.md`.
-- Load this file at session start
-- Strong opinions → treat as constraints for all projects
-- Soft patterns → treat as suggestions (not enforced)
-- Anti-patterns → treat as exclusions
-- The `/retro` workflow updates this file at project end
+**Screen inventory is never tracked in markdown.** The design file is the only source of truth for what screens exist and their current IDs. Pull the inventory live. Any node ID written into a doc is a snapshot, not an address.
 
 ---
 
-## Figma Integration
+## Products often have more than one design system
 
-All Figma-editing agents (design-lead, motion-designer, design-builder) MUST follow the practices defined in `.claude/skills/tools/figma-canvas/SKILL.md`. This includes:
-- Semantic token usage (never raw hex)
-- Proper state management
-- Auto layout by default (see rule below)
-- Industry-standard naming, variants, and properties
-- Variable assignment
+This is the norm, not an edge case. A product app and its marketing surfaces usually diverge in type and color, and they should — they have different jobs. A physical product may have a print system and a web system.
 
-### CRITICAL: Auto Layout is the Default — No Exceptions
+When a project has more than one:
 
-**Every frame and component MUST use auto layout.** This is not a suggestion — it is the standard construction method for all designs. Auto layout ensures responsive behavior, consistent spacing, and maintainable structure.
-
-The only acceptable exceptions are:
-- **Highly custom, non-standard layouts** that cannot be expressed with auto layout nesting
-- **Complex artistic stacking** that requires precise manual positioning (e.g., overlapping decorative elements)
-
-If you are unsure whether auto layout applies, it does. Default to auto layout and only deviate with explicit justification. Frames without auto layout create brittle designs that break when content changes.
-
-### CRITICAL: Variable and Text Style Binding
-
-**Every fill, stroke, and text color MUST be bound to a Figma variable using `setBoundVariableForPaint()`.** No raw hex or RGB values — zero exceptions. Every text node MUST use an existing Figma text style, not manual fontName/fontSize settings. If a required token or style doesn't exist, flag it to the user and wait — do not improvise a raw value. This applies to all new designs, component modifications, and screen compositions. Verify bindings after every creation step.
-
-### Pre-Flight Checklist (Before ANY Figma Write)
-
-Before creating or modifying any design in Figma, complete these checks in order:
-
-1. **Search existing components first.** Never build a raw frame for something a component already handles. Check the Components page and use `search_design_system` before creating anything new.
-2. **Plan component changes before detaching.** If you need structural changes, modify the source component first. Never detach instances as a shortcut — work at the component level so changes propagate.
-3. **Pull variables and text styles upfront.** At the start of any design task, load the variable collections and text style list. Reference them throughout — don't look them up after the fact.
-4. **Fix at the source, not the instance.** If something is broken on a screen, trace it back to the component and fix it there. Instance-level fixes don't scale and create drift.
-5. **Verify after every step.** Take a screenshot after each structural change. Check for overflow, clipping, misalignment, and text wrapping. Never move to the next step with a broken previous step.
-6. **Minimize frame nesting.** Don't wrap frames in frames unless auto layout requires a different direction, spacing, or alignment. One level is almost always enough.
-7. **Never modify variable scopes on existing variables.** When creating new variables, set scopes explicitly. But never change scopes on variables that already exist — this can break the entire design system's picker visibility.
-8. **Not everything should be a component.** Content-specific elements (like range sliders with custom tick positions) work better as structured frames. Componentize patterns, not content.
+- Name them, define what each governs, and record the boundary in `design-brief.md`
+- Name what they share, explicitly and exhaustively. Usually it is one accent color and nothing else.
+- **Pick the system by surface, then adhere strictly.** Never mix faces or palettes across the boundary.
+- The usual sanctioned exception is a real product screenshot inside a marketing layout: the screenshot keeps product styling, the frame around it uses brand styling.
 
 ---
 
 ## Prototyping
 
-This framework produces Figma artifacts and engineering specs. It does **not** produce interactive code prototypes directly.
+The framework produces design artifacts, engineering specs, **and** running prototypes. Prototypes are built by the prototype-engineer in the stack declared in `prototype.json` — React, a Shopify theme, a static site, a publishable artifact, or print production files. Never assume a stack; read it.
 
-When the user asks for a working prototype (clickable multi-screen flow for user research, stakeholder demos, or design validation):
+**Two rules that survive every stack:**
 
-### CRITICAL: Never Generate Standalone HTML Prototypes
+1. **Prototypes consume the design system as code.** They do not reinvent it. If the host project has no component and token layer, building that layer is the first task, not an optional step.
+2. **Say which direction the work is flowing.** Translating an existing design is the default and it is faithful — narrow substitutions only. Designing in code is legitimate when a static frame cannot answer the question, and then the design file follows and gets reconciled. Authoring is legitimate when the user asks for it. What is forbidden is inventing silently while claiming to translate.
 
-Do not produce standalone HTML/CSS/JS files. Standalone HTML reinvents the design system from scratch every prototype, produces brittle multi-screen behavior, loses fidelity to the Figma source, and looks low-quality. The Figma MCP server's output is structured for component-based frameworks; translating it to vanilla HTML is where fidelity dies.
+**On standalone HTML:** do not hand-roll a standalone HTML file as a substitute for a real prototype — that reinvents the design system every time and loses fidelity. A published **artifact** is different and is sanctioned: it is a distribution format for people who will not run a dev server, and it is declared as `"stack": "artifact"` in `prototype.json`.
 
-### Required Substrate
-
-Prototypes must live inside a host project that already contains the project's design system as code components. If no such host project exists for the active project, scaffold one as a one-time setup — do not attempt to produce a prototype without it.
-
-The host project's stack is determined by what the project already uses or what fits its production codebase. The principle is component-based and token-aware, not a specific framework.
-
-### Workflow
-
-1. Read the Figma frame via the Figma MCP server (`get_design_context`).
-2. Paste the returned code near-verbatim into the host project. Swap only assets and event handlers; do not re-architect markup, layout, or styling. (See cross-project memory: paste MCP output verbatim.)
-3. For multi-screen flows, wire minimal routing between screens. Never invent UI not present in Figma.
-4. Run the host project's dev server and verify the result in a browser before reporting the task complete. Never claim a prototype works without testing it.
-
-### Code Connect
-
-Code Connect mappings (`.figma.tsx` files) are a maturity step, not a prerequisite. They make the loop seamless by letting the MCP server return the project's actual component imports instead of raw markup, but they require stable component APIs to be worth maintaining. Do not propose Code Connect setup until the project's component library has stabilized.
-
-### Operational details: see the skill, not this section
-
-The full operational pipeline (pre-flight Figma readiness audit, canonical-component-first build order, screenshot diff cadence, halt-for-review gates, authoring mode rules) lives in `.claude/skills/workflows/figma-to-prototype/SKILL.md`. Invoke `/figma-to-prototype` to use it. A `PostToolUse` hook at `hooks/prototype-drift-check.sh` programmatically catches drift on every Write/Edit to a prototype screen file — text rules in this CLAUDE.md are not the enforcement layer; the hook is.
+Operational detail lives in the `prototype` skill, not here. A `PostToolUse` hook catches drift on the paths a project declares — the enforcement layer is the hook, not this prose.
 
 ---
 
-## Engineering Handoff
+## Cross-project memory
 
-Handoff specs are formatted for the team's sprint system. The `/handoff` workflow produces output that can be directly consumed as sprint tasks with:
-- Component assignment
-- Task type and priority
-- Success criteria checklist
-- Design decisions and token references
-- Figma node IDs
+`taste-profile.md` at the repo root holds what belongs to the **designer**, across every project:
+
+- **Strong opinions** — constraints for all projects
+- **Soft patterns** — suggestions, not enforced
+- **Anti-patterns** — exclusions
+
+What belongs to a *product* goes in that project's own taste profile. The test: if the opinion would change for a different client or a different medium, it is not cross-project. Keep the root file small; a bloated one stops being read.
+
+`/retro` updates it at project end.
 
 ---
 
-## Narration Protocol
+## Canvas quality
 
-All agents must narrate their work to the user:
-1. **Arrival**: State what you are picking up and why
-2. **Working**: Surface key decisions as they happen
-3. **Departure**: Summarize what was done and what the next step is
+All canvas work follows `.claude/skills/tools/figma-canvas/SKILL.md` — semantic tokens with no raw values, auto layout by default, component reuse before creation, complete state coverage, and verification by screenshot after every structural change. That file is policy. Load the vendor's own skills for how to execute it.
 
-The user is the creative director. They can redirect, correct, or approve at any point. Always defer to their judgment on aesthetic and strategic decisions.
+Two rules worth repeating here because they are violated most often:
+
+- **Search for an existing component before building anything.** Building a duplicate you did not find is the most common failure.
+- **Never leave broken output.** Content fits its container. Nothing clips, overflows, or overlaps. Verify before moving on.
+
+---
+
+## Narration
+
+1. **Arrival** — what you are picking up and why
+2. **Working** — surface decisions as you make them, so the user can redirect before you build further
+3. **Departure** — what was done, what is open, what is next
+
+The user can redirect at any point. Defer to their judgment on aesthetic and strategic calls.

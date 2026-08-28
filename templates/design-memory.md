@@ -1,7 +1,7 @@
-# PureMath Design Memory
+# Design Memory
 
 > This file lives at taste-profile.md
-> It persists across all PureMath projects and captures your evolving design identity.
+> It persists across all projects and captures the designer's evolving design identity.
 > Updated by the /retro workflow at project end. Loaded at session start.
 
 ---

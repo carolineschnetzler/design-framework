@@ -1,0 +1,7 @@
+{
+  "fileKey": "<design file key>",
+  "tokenOutputPath": "<absolute path to the code token file /sync-tokens writes>",
+  "componentsPageNodeId": "<node id>",
+  "screensPageNodeId": "<node id>",
+  "_comment": "Page-level IDs only. Never record individual screen or component IDs here — they shift, and the design file is the only source of truth for what exists."
+}

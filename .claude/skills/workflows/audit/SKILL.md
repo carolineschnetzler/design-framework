@@ -25,16 +25,19 @@ Search for recent updates to:
 - **Skill architecture** — Changes to how skills are structured or loaded
 - **Tool additions** — New built-in tools available to agents
 - **Scheduled agents** — New scheduling capabilities or cron features
+- **Agent and skill frontmatter** — new or renamed fields. A field this framework uses that Claude Code no longer recognises fails **silently**, so check the current field reference rather than assuming.
 - **Memory and persistence** — Changes to how context persists across sessions
 
-### Step 2: Check Figma MCP Capabilities
+### Step 2: Check vendor capabilities
 
-Search for recent updates to:
-- **New MCP tools** — Tools beyond the current set (use_figma, get_design_context, get_variable_defs, etc.)
-- **Plugin API updates** — New Figma Plugin API features available through use_figma
-- **Variable system** — New variable types, collection features, mode capabilities
-- **Component features** — New property types, slot improvements, variant capabilities
-- **Dev mode and handoff** — New features that affect engineering handoff
+The framework deliberately does not restate vendor APIs, so this step checks whether the framework is still *pointing at the right things* — not whether it has copied them correctly.
+
+- **Installed plugin versions.** Read `~/.claude/plugins/installed_plugins.json` for the current version and `lastUpdated` of each design-related plugin. Compare against what the framework's skills reference by name.
+- **Skills that shipped since.** List the skills each installed plugin now provides. If a vendor now ships a skill covering something this framework documents itself, **that framework file should shrink or be deleted**, not kept in sync.
+- **Tool names referenced anywhere in this repo.** Grep for `mcp__` across the framework. Every hit is a maintenance liability. Confirm each still exists, and question whether it needs naming at all.
+- **Guidance changes.** Check the vendor's current documentation for changes to the recommended integration path — remote vs local servers, skills installation, rules files.
+
+The finding to look hardest for: **something this framework explains that the vendor now explains better.** That is a deletion, and deletions are the highest-value output of this audit.
 
 ### Step 3: Check Design Agent Practices
 

@@ -1,237 +1,163 @@
-# 15 Figma Canvas Standards
+# Figma Canvas Standards
 
-A distilled set of standards for building production-ready Figma files. Opinionated, enforceable, and battle-tested — these are the rules you'd want a junior designer to internalize on day one so your handoffs don't bleed Slack threads.
-
-Written for working designers and design engineers. If you're building an agent that edits Figma, the machine-readable version lives at `.claude/skills/tools/figma-canvas/SKILL.md`.
-
----
-
-## Tokens & variables
-
-### 1. Bind every visual property to a semantic token
-
-Every color, spacing, type, and radius value must be bound to a **semantic** variable — never a raw hex, never a primitive-only binding.
-
-- Semantic: `background/card`, `text/primary`, `spacing/section-gap`, `radius/card`
-- Primitive (avoid as a final binding): `neutral/800`, `spacing/32`, `radius/16`
-- Raw value (never): `#1c1c1c`, `32px`, `16px`
-
-**Why:** A raw hex tells engineering nothing about intent. A primitive token doesn't survive a theme swap. A semantic token names the role — so dark/light mode, rebrands, and new modes just work. Engineering reads the variable bindings, not the pixel values.
-
-**How to apply:** If a semantic token is missing for what you need, stop and flag it. Don't alias a primitive on the fly, and never type a hex value directly into the paint panel. Create the semantic variable properly (with values for every mode) or escalate.
-
-### 2. "Coincidentally the right color" is not a binding
-
-A layer fill can *look* correct because you picked the matching hex visually — but if the Figma variable panel doesn't show a binding, engineering has no link back to the design system.
-
-**How to verify:** Select any filled node, open the fill panel, and confirm the variable name is shown. If you see only a color swatch and a hex, it's unbound.
-
-### 3. Never modify variable scopes on existing variables
-
-When creating a new variable, set its scope explicitly (e.g., "available for fills only"). But never change scopes on variables that already exist — the change cascades through the entire design system picker and can hide variables from places they used to work.
-
-**How to apply:** Set scope at creation time and leave it alone. If a variable should be visible in a new context, create a new variable or alias rather than widening an existing scope.
+> Opinionated, enforceable rules for production-ready Figma files. Written for AI-assisted work, but they hold whether or not an agent is involved.
+>
+> Part of the [Design Framework](../README.md), where a `PostToolUse` hook checks every canvas write against them. Standalone here so they can be adopted on their own.
 
 ---
 
-## Auto layout
+## What this is, and what it is not
 
-### 4. Auto layout is the default — deviate only for documented exceptions
+**This is policy. It is not API documentation.**
 
-Every frame that represents a UI component or layout region uses auto layout. Centering, equal spacing, sidebar + content, stacked cards, grids — all of it is nested auto layout.
+Figma maintains its own skills and reference material for *how* to drive the canvas, and those are versioned with the API. Anything a third-party document restates about the API surface is wrong within weeks. So this document deliberately covers only what does not expire: the standard the work is held to, regardless of how the tooling changes to meet it.
 
-**Known valid exceptions (absolute-positioned children inside an auto-layout parent):**
-
-| Exception | Why |
-|---|---|
-| Badges, status dots, notification counts | Overlap the parent boundary |
-| Close/dismiss buttons | Pinned to corner regardless of content length |
-| Floating controls (FABs, scroll-to-top) | Anchored to a container edge |
-| Tooltips, popovers, dropdowns | Must overlay adjacent siblings |
-| Decorative backgrounds, watermarks | Behind content without affecting spacing |
-| Overlapping labels ("NEW" ribbons) | Hang off a card edge |
-| Loading overlays, spinners | Centered over content without displacing it |
-
-**Known valid exceptions (frames without any auto layout):**
-
-- Top-level viewport frames with pinned sticky sections
-- Complex overlapping hero/marketing compositions with intentional z-space layering
-- Annotation/redline scaffolding that never ships
-
-If you find yourself reaching for absolute positioning outside this list, you're probably missing a nested auto-layout opportunity.
-
-### 5. Every auto-layout child has an explicit sizing mode
-
-Every child of an auto-layout frame must be set to **hug contents**, **fill container**, or **fixed**. Never leave sizing ambiguous.
-
-- **Hug:** element sizes to its content (buttons, labels, icon wrappers)
-- **Fill:** element stretches to parent (main content areas, flexible inputs)
-- **Fixed:** element has a known, intentional size (icons, avatars, divider thickness)
-
-**Why:** An unset sizing mode is the #1 source of "this screen looks fine at 1440 but breaks at 1200" bugs. Auto layout can't respond correctly without knowing the intent of each child.
-
-### 6. Nest auto layout — don't fight a single frame's alignment
-
-If a single auto-layout frame can't express what you need, add a nested auto-layout frame. Use:
-- Sidebar + main → horizontal auto layout with `fixed + fill`
-- Grid → nested horizontal auto layouts inside a vertical auto layout
-- "Space between with a trailing icon" → two nested frames, each with its own alignment
-
-A design that needs three levels of carefully-nested auto layout is almost always cleaner than a design that uses absolute positioning to hack around a single frame.
-
-### 7. Minimize frame nesting — flat beats deep
-
-The opposite pitfall: don't wrap frames in frames unless auto layout requires a different direction, spacing, or alignment. One level of nesting is almost always enough.
-
-Signs you've over-nested:
-- A frame that contains exactly one child
-- Three wrapper frames all with the same direction and no different padding
-- You can't remember which wrapper owns which property
-
-**How to apply:** Before committing a layout, try flattening. If the design still works with one less wrapper, delete the wrapper.
+If you are adopting these rules with an AI agent, pair them with the vendor's current skills. Where the two appear to conflict, **the vendor wins on mechanics and this document wins on policy.** How to bind a variable is theirs. Whether a raw hex is ever acceptable is ours.
 
 ---
 
-## Components & slots
+## 1. Semantic tokens — no raw values
 
-### 8. Always use instances — never recreate a component
+Every fill, stroke, effect color, text style, spacing value, and radius binds to a **semantic** variable from the project's system. Semantic means the name describes purpose, not value: `background/card`, not `neutral/800`. `spacing/section-gap`, not `spacing/32`.
 
-Search the library first (`search_design_system` in the MCP, the Assets panel in the UI). If something exists, use the instance. Recreating a component creates drift: the next library update won't reach your copy, and reviewers can't tell which one is canonical.
+A raw hex tells engineering nothing about intent. A semantic token survives theme changes, mode switches, and rebrands.
 
-### 9. Never detach as a shortcut — fix at the source
+- Every text node uses a **text style**. Not a manual font/size/weight combination that happens to match one.
+- If a token doesn't exist for what the design needs, **stop and flag it**. Do not improvise a raw value, and do not alias a primitive to paper over the gap.
+- Semantics alias primitives. Screens bind semantics only.
+- New variables get values for **every mode**, in the correct collection, following the project's naming convention.
+- **Never change scopes on an existing variable.** Set them at creation; changing them later can break picker visibility across the whole file.
 
-If an instance doesn't support what you need:
-1. Check every variant and property you might've missed
-2. If genuinely unsupported, update the source component — don't detach the instance
-3. Detach only as a last resort, with explicit approval, and only to create a new local component
+---
 
-**Why:** Detached instances are invisible design debt. They look fine until the design system changes and they silently diverge. Three months later, nobody knows why this one card behaves differently.
+## 2. Auto layout is the default
 
-### 10. Slots for open-ended content, instance swap for constrained choices
+Every frame representing a component or layout region uses auto layout, with direction, padding, and gap set explicitly from the spacing scale. Hug what should size to content, fill what should stretch, fix only what has a known intentional size.
 
-When a component needs to accept variable content, choose the right mechanism:
+**Minimize nesting.** Do not wrap a frame in a frame unless auto layout genuinely requires a different direction, spacing, or alignment. One level is almost always enough. Never wrap a single text node in a frame just to position it — put it in the auto-layout parent directly.
 
-| | Instance Swap | Slot (auto-layout frame inside the component) |
+### Children that legitimately sit outside the flow
+
+The parent still uses auto layout; these children are absolutely positioned:
+
+- Badges, counts, and status dots that overlap a parent's boundary
+- Close and dismiss buttons pinned to a corner regardless of content length
+- Floating controls anchored to a container edge
+- Tooltips, popovers, and dropdowns, which must not participate in flow
+- Decorative and background elements that sit behind content
+- Labels and ribbons that hang off an edge
+- Loading overlays centered over content without displacing it
+
+### Frames that legitimately have no auto layout
+
+Rare. Justify each one.
+
+- Top-level page frames with pinned sections, where the sections themselves still use auto layout
+- Deliberately overlapping compositions where no linear flow exists
+- Scaffolding that never ships — annotation layers, redline frames, documentation
+
+---
+
+## 3. Reuse before you create
+
+- **Search the library first.** The most common failure is building a duplicate of something that already exists under a name you didn't guess. Search several terms before concluding it's missing.
+- **Pull the canonical component, not a screen instance.** An instance shows one variant; the canonical shows every variant and property.
+- **Never detach.** If a component can't do what's needed: look for a property you missed, then flag the gap. Creating a local one-off is a last resort with the user's approval.
+- **Overrides are for content**, not for colors and spacing. If you're overriding many properties, the component isn't the right fit.
+- **Don't delete nodes you don't understand.** A clipped or hidden layer that looks like a duplicate is often a scroll, hover, or interaction state.
+
+---
+
+## 4. Slots vs. instance swap
+
+|  | Instance swap | Slot |
 |---|---|---|
 | Accepts | One instance from a defined set | Any content — components, frames, text, images |
-| Cardinality | Exactly 1:1 | 0 to many children, reorderable |
-| Best for | Icons, avatars, badges | Card bodies, toolbar actions, content areas |
-| Discovery | Dropdown in properties panel | Drag into the layers panel |
+| Cardinality | Exactly 1:1 | 0 to many, reorderable |
+| Best for | Icons, avatars, badges | Card bodies, toolbars, content areas |
 
-**Slot checklist:**
-- Named descriptively (`Card-Body`, `Action-Bar`, not `Frame 47`)
-- Has auto layout applied
-- Set to `fill-container`
-- Has min-width / min-height to prevent collapse
-- Contains default content so the component is usable out of the box
-- "Clip content" enabled where overflow should hide (cards, modals)
+A slot is just a named auto-layout frame inside the component: descriptive name, fill-container, a min size so it can't collapse, and default content so the component is usable and communicates what belongs there.
 
-**When to use neither:**
-- Fixed set of N visual options → variant property
-- Something is present or absent → boolean property
-- Only a string changes → text property
+Don't reach for a slot when the answer is simpler: a fixed set of options is an instance swap, present-or-absent is a boolean, and a changing string is a text property.
 
 ---
 
-## Naming
+## 5. Variant architecture
 
-### 11. Every layer has a semantic name — no auto-generated names
+Getting this wrong is what makes a library explode and then break.
 
-"Frame 47" and "Group 3" are banned. Every layer must be named by what it **is**, not what it looks like.
-
-**Conventions by layer type:**
-
-| Layer Type | Convention | Examples |
-|---|---|---|
-| Custom frames and groups | Title-Kebab-Case | `Main-Content`, `Chat-Input-Area`, `Filter-Bar` |
-| Components and instances | PascalCase + slashes for hierarchy | `AgenticCard/Progress`, `Top Nav`, `Message Bubble` |
-| Primitives (shapes, vectors) | lowercase-kebab-case | `table-background`, `tab-divider` |
-| Text layers | Literal text content | `Good Afternoon, Dylan.`, `NOTIFICATIONS` |
-| Slots / viewports | PascalCase | `MessageViewport`, `ContentArea` |
-| Screen / page frames | PascalCase or Title-Kebab | `InitialChat`, `Reco-Firms-Progress` |
-
-**Forbidden:** "BlueBox", "BigText", "LargeSection" — names that describe appearance, not role. They break the moment you change the color or size.
+- **Options and columns are booleans or properties, never variants.** Variants for column counts or row counts multiply combinatorially and still can't reorder.
+- **Repeats are stacked instances**, not variants.
+- **Componentize what repeats *and* is invariant.** Anything whose geometry is data — a bar whose length encodes a value — cannot be an instance child; every instance will render the component's dimensions and quietly lie. The bar length is data, not design.
+- **Expose meaningful nested instances** so a consumer can drive them from the properties panel without diving into the layer tree.
+- Consistent property names across components: `State`, `Size`, `Type`, `Icon`. The default variant is the most common usage.
 
 ---
 
-## State
+## 6. State coverage
 
-### 12. Every interactive element has five states as variants
+Every interactive element carries these as **variants**, not as separate layers:
 
-Default, Hover, Focus, Active, Disabled — minimum. Each one is a **variant**, not a duplicated layer or a hidden frame.
+| State | Visual change |
+|---|---|
+| Default | Base |
+| Hover | Subtle emphasis |
+| Focus | Visible ring, never color alone |
+| Active | Pressed treatment, visibly distinct from hover |
+| Disabled | Reduced opacity, out of the interactive flow |
 
-| State | When | Visual Change |
-|---|---|---|
-| Default | No interaction | Base appearance |
-| Hover | Cursor over element | Subtle emphasis (lighter bg, shadow, underline) |
-| Focus | Keyboard focused | Visible focus ring (2px+ outline, offset, high contrast) |
-| Active / Pressed | Being clicked | Compressed or depressed |
-| Disabled | Not available | Reduced opacity (0.4–0.5), no cursor change |
+Plus, where the component needs them: error, loading, selected, empty.
 
-Add Error, Loading, Selected, Empty as needed. Use a `State` variant property — don't scatter states across separate component sets.
-
-### 13. Focus states must be visible without color alone
-
-A focus ring that differs from default by color only will fail WCAG and real keyboard users. Use an outline, ring, offset, or glow that's perceivable without color distinction.
-
-**How to verify:** View the focus state in grayscale (Figma → Plugins → Color Contrast or a grayscale preview). If you can't tell it from Default, it's not accessible.
-
-### 14. Variant property for visual differences; boolean for presence; text for strings
-
-Choose the right property type for each thing that changes:
-
-- **Variant property** → visual differences that change structure (state, size, type)
-- **Boolean property** → toggling optional elements (hasIcon, showBadge, isCompact)
-- **Instance swap property** → swapping child instances from a constrained set
-- **Text property** → editable string content (label, description, placeholder)
-
-Mixing these up (e.g., using a variant for what should be a boolean) produces combinatorial explosions of variants that nobody can maintain.
+**When adding a state to something that already has siblings, copy an existing example's stroke, color, and token exactly.** Do not substitute what seems reasonable — the point is matching the system, not matching your judgment of it.
 
 ---
 
-## Verification
+## 7. Naming
 
-### 15. Screenshot after every structural change
+Names describe what an element **is**, not what it looks like. No auto-generated names survive. No `BlueBox`, no `BigText`.
 
-After any structural edit — new section, resized frame, added component — take a screenshot and check for:
+**Adopt the project's existing convention and record it in `design-system.md`.** Conventions are per-file, and consistency inside a file beats correctness across files. Where a project has none, this is a reasonable default:
 
-- Text overflow or clipping
-- Misalignment across siblings
-- Content that breaks container boundaries
-- Unexpected auto-layout reflow
-- Spacing that visibly differs from the design system scale
+| Layer type | Convention |
+|---|---|
+| Frames and groups | `Title-Kebab-Case` |
+| Components | `PascalCase`, slashes for hierarchy |
+| Primitives | `lowercase-kebab-case` |
+| Text layers | The literal text content |
+| Slots | `PascalCase` |
 
-**Why:** Figma's API and plugin-based edits can produce results that look fine in one node view but are broken at the frame level. The only way to catch this is to look at the actual rendered output between steps.
+---
 
-Pair this with resizing the top-level frame before committing — if the design doesn't hold at ±200px of width variation, the auto-layout setup is wrong.
+## 8. Verification
+
+- **Screenshot after every structural change.** Never stack a change on an unverified previous step.
+- **Check that content fits.** No overflow, no clipping, no text pushing a column. Long content truncates rather than breaking the layout.
+- Resize the frame after building to confirm auto layout actually responds.
+- **Place new frames in clear empty space**, never overlapping existing work.
+- Verify on assembled screens with real instances. Component-definition previews render modes unreliably.
+
+---
+
+## 9. Motion
+
+Timing defaults, where the project has no opinion: micro-interactions 100–150ms, state transitions 200–300ms, page transitions 300–400ms. Ease-out for entrances, ease-in for exits.
+
+Prototype the flows that need stakeholder buy-in or engineering clarification. Not every interaction needs a connection.
 
 ---
 
 ## Pre-edit checklist
 
-Before making any canvas edit:
-
-- [ ] I know which project's design system applies
-- [ ] I've loaded the variable definitions (`get_variable_defs` or check the Variables panel)
-- [ ] I've searched existing components (`search_design_system` or the Assets panel)
-- [ ] I know the token names for the colors, spacing, and type I'll use
+1. ☐ I know which of the project's design systems applies to this surface
+2. ☐ I've loaded the project's variables and text styles
+3. ☐ I've searched for existing components
+4. ☐ I've loaded Figma's own current skills for the mechanics
 
 ## Post-edit checklist
 
-After every canvas edit:
-
-- [ ] No raw hex — all colors bound to **semantic** variables
-- [ ] All layout frames use auto layout, exceptions only for the documented cases
-- [ ] All layers named semantically — no auto-generated names
-- [ ] Component instances used where available; slots used for open-ended content
-- [ ] Interactive elements have state variants (default/hover/focus/active/disabled)
-- [ ] Spacing values bound to semantic tokens where available
-- [ ] Screenshot taken to verify visual result matches intent
-
----
-
-## How to use this document
-
-- **In a team:** Link to it from your design system README. Use the pre- and post-edit checklists in PR reviews of `.fig` file changes or as acceptance criteria for Figma work.
-- **With an AI design agent:** The machine-readable version at `.claude/skills/tools/figma-canvas/SKILL.md` contains the same standards formatted for an agent's system prompt, plus a `PostToolUse` hook in `.claude/settings.json` that re-checks every canvas edit automatically.
-- **Solo:** Treat it as the pre-flight checklist before shipping a file to engineering. Most handoff bugs come from violating standards 1, 5, 9, and 12.
+1. ☐ No raw values — everything bound to semantic variables and text styles
+2. ☐ Auto layout throughout, exceptions only from the documented lists
+3. ☐ Existing components used; nothing recreated or detached
+4. ☐ Interactive elements have full state coverage
+5. ☐ Layers named per the project's convention
+6. ☐ Screenshot taken; nothing clipped, overflowing, or overlapping

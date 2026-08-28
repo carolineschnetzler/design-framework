@@ -1,78 +1,88 @@
 #!/bin/bash
-# PostToolUse hook for the figma-to-prototype workflow.
-# Runs on Write/Edit. Catches drift on prototype screen files written outside the verbatim-paste pipeline.
-# Exit 0 = pass. Exit 2 = blocking violation (Claude Code shows stderr to the model).
+# PostToolUse hook for the prototype workflow.
+# Guards the *translation* path: files that are supposed to be faithful translations
+# of a design, not authored from scratch.
+#
+# Which paths are guarded is declared per project in projects/<name>/prototype.json:
+#
+#   { "stack": "react-vite",
+#     "mode": "translate",                     // or "prototype-first" to disable the check
+#     "verbatimPaths": ["src/screens/*.tsx"] } // globs, relative to hostProjectPath
+#
+# A project with no verbatimPaths guards nothing. That is a valid choice — say so
+# in prototype.json rather than leaving the hook pointed at a directory nobody uses.
+#
+# Exit 0 = pass. Exit 2 = blocking violation (stderr is shown to the model).
 
 set -u
-
-# Read the JSON payload Claude Code sends on stdin.
+FRAMEWORK_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 INPUT=$(cat)
 
-# Extract tool_name and file_path from the JSON. Use Python for robust parsing.
-TOOL=$(printf '%s' "$INPUT" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('tool_name',''))" 2>/dev/null)
-FILE_PATH=$(printf '%s' "$INPUT" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('tool_input',{}).get('file_path',''))" 2>/dev/null)
+read -r TOOL FILE_PATH <<<"$(printf '%s' "$INPUT" | python3 -c "
+import sys, json
+d = json.load(sys.stdin)
+print(d.get('tool_name',''), d.get('tool_input',{}).get('file_path',''))
+" 2>/dev/null)"
 
-# Only check Write/Edit operations.
-if [ "$TOOL" != "Write" ] && [ "$TOOL" != "Edit" ]; then
-  exit 0
-fi
+[ "$TOOL" = "Write" ] || [ "$TOOL" = "Edit" ] || exit 0
+[ -n "${FILE_PATH:-}" ] && [ -f "$FILE_PATH" ] || exit 0
 
-# Only check prototype screen files. Match common host-project paths.
-case "$FILE_PATH" in
-  */advpulse-prototype/src/screens/*.tsx) ;;
-  */prototype/src/screens/*.tsx) ;;
-  *) exit 0 ;;
-esac
-
-# Skip if the file no longer exists (rare race; PostToolUse fires after the write).
-if [ ! -f "$FILE_PATH" ]; then
-  exit 0
-fi
+# Does this file fall under a guarded path of any registered project?
+GUARDED=$(FRAMEWORK_DIR="$FRAMEWORK_DIR" FILE_PATH="$FILE_PATH" python3 << 'PY'
+import os, json, glob, fnmatch
+fw, target = os.environ["FRAMEWORK_DIR"], os.path.realpath(os.environ["FILE_PATH"])
+for cfg in glob.glob(os.path.join(fw, "projects", "*", "prototype.json")):
+    try:
+        d = json.load(open(cfg))
+    except Exception:
+        continue
+    if d.get("mode") == "prototype-first":
+        continue
+    host = d.get("hostProjectPath", "")
+    if not host or not target.startswith(os.path.realpath(host) + os.sep):
+        continue
+    rel = os.path.relpath(target, os.path.realpath(host))
+    for pat in d.get("verbatimPaths", []):
+        if fnmatch.fnmatch(rel, pat):
+            print(os.path.basename(os.path.dirname(cfg)))
+            raise SystemExit
+PY
+)
+[ -n "$GUARDED" ] || exit 0
 
 VIOLATIONS=()
 
-# Check 1 — data-node-id attributes (proves MCP-derived). Required for screens.
+# 1 — Source traceability. Design-tool exports carry per-element source node attributes.
 if ! grep -q 'data-node-id=' "$FILE_PATH"; then
-  VIOLATIONS+=("MISSING data-node-id attributes. Screen files must come from mcp__figma__get_design_context output, which returns these attributes on every element. Authoring screens from scratch is not allowed in default mode. If the user explicitly invoked authoring mode, this file should be in src/components/, not src/screens/.")
+  VIOLATIONS+=("MISSING source node attributes. Files on a guarded translation path must come from the design tool's design-context output, which annotates every element with its source node. Authoring from scratch is not translation. If this file is genuinely authored, it belongs outside the guarded paths — or the project is prototype-first and should say so in prototype.json.")
 fi
 
-# Check 2 — Verbatim header comment (declares the source Figma node).
-if ! head -10 "$FILE_PATH" | grep -q 'Verbatim translation of Figma node'; then
-  VIOLATIONS+=("MISSING verbatim header comment. First lines of every prototype screen must declare the source Figma node, e.g.: '// Verbatim translation of Figma node 4030:8305 (Initial-Chat). // Pulled via mcp__figma__get_design_context on 2026-05-06.'")
+# 2 — Header naming the source.
+if ! head -10 "$FILE_PATH" | grep -qi 'translation of .* node'; then
+  VIOLATIONS+=("MISSING source header. The first lines must name the source node and the date it was pulled, e.g. '// Verbatim translation of Figma node 4030:8305 (Initial-Chat). // Pulled 2026-08-28.'")
 fi
 
-# Check 3 — Raw hex values outside var() fallback patterns.
-# MCP output uses the pattern var(--token-name, #1c1c1c). Hex inside that pattern is fine.
-# Hex outside that pattern (e.g., bg-[#1c1c1c] or color: #1c1c1c standalone) signals authored styling.
-# Strategy: count all hex occurrences, then count hex inside var(...,#...) patterns. Flag if difference is significant.
+# 3 — Raw values outside the token fallback pattern var(--token, #fallback).
 TOTAL_HEX=$(grep -oE '#[0-9a-fA-F]{3,8}' "$FILE_PATH" | wc -l | tr -d ' ')
-HEX_IN_VAR=$(grep -oE 'var\(--[a-zA-Z0-9_-]+,\s*#[0-9a-fA-F]{3,8}' "$FILE_PATH" | wc -l | tr -d ' ')
-RAW_HEX=$((TOTAL_HEX - HEX_IN_VAR))
-
+HEX_IN_VAR=$(grep -oE 'var\(--[a-zA-Z0-9_-]+,[[:space:]]*#[0-9a-fA-F]{3,8}' "$FILE_PATH" | wc -l | tr -d ' ')
+RAW_HEX=$(( TOTAL_HEX - HEX_IN_VAR ))
 if [ "$RAW_HEX" -gt 3 ]; then
-  VIOLATIONS+=("$RAW_HEX raw hex value(s) outside var() fallback patterns. Design tokens must use var(--token-name, #fallback). Raw hex outside this pattern indicates authored styling, not MCP-derived translation.")
+  VIOLATIONS+=("$RAW_HEX raw value(s) outside the var(--token, #fallback) pattern. Raw values on a translation path mean authored styling, not translation. Bind to the project's tokens.")
 fi
 
-# Pass if no violations.
-if [ ${#VIOLATIONS[@]} -eq 0 ]; then
-  exit 0
-fi
+[ ${#VIOLATIONS[@]} -eq 0 ] && exit 0
 
-# Print violations to stderr for the model to see.
 {
   echo ""
   echo "=== PROTOTYPE DRIFT CHECK FAILED ==="
-  echo "File: $FILE_PATH"
+  echo "Project: $GUARDED"
+  echo "File:    $FILE_PATH"
   echo ""
   i=1
-  for v in "${VIOLATIONS[@]}"; do
-    echo "$i. $v"
-    echo ""
-    i=$((i + 1))
-  done
-  echo "Per the figma-to-prototype skill: paste mcp__figma__get_design_context output verbatim, swap only CSS-var names and asset components, never author screens from scratch. If the user explicitly requested authored content, that work belongs in src/components/ (and should be clearly flagged in your response as authored)."
+  for v in "${VIOLATIONS[@]}"; do echo "$i. $v"; echo ""; i=$((i+1)); done
+  echo "Per the prototype skill: translate the design tool's output with token-name and asset substitutions only."
+  echo "If this work is genuinely authored or prototype-first, say so explicitly and record it in prototype.json —"
+  echo "do not work around the check. An unenforced rule and a silently bypassed rule are the same thing."
   echo ""
 } >&2
-
-# Exit 2 = blocking error. The model sees the stderr output and is expected to correct.
 exit 2

@@ -1,10 +1,15 @@
 {
-  "hostProjectPath": "/Users/cschnetzler/advpulse-prototype",
-  "stack": "Vite + React 19 + TypeScript + Tailwind 3 + react-router-dom 7",
-  "screensDir": "/Users/cschnetzler/advpulse-prototype/src/screens",
-  "componentsDir": "/Users/cschnetzler/advpulse-prototype/src/components",
-  "tokensCss": "/Users/cschnetzler/advpulse-prototype/src/index.css",
+  "hostProjectPath": "/Users/cschnetzler/advpulse/prototype",
+  "stack": "react-vite",
+  "screensDir": "/Users/cschnetzler/advpulse/prototype/src/screens",
+  "componentsDir": "/Users/cschnetzler/advpulse/prototype/src/components",
+  "tokensCss": "/Users/cschnetzler/advpulse/prototype/src/index.css",
   "devCommand": "npm run dev",
   "fixedCanvasWidth": 1440,
-  "deployTarget": "Vercel preview (not yet wired)"
+  "deployTarget": "Vercel preview (not yet wired)",
+  "mode": "prototype-first",
+  "verbatimPaths": [
+    "src/screens/*.tsx"
+  ],
+  "notes": "Screens under src/screens are May-2026 verbatim translations and stay guarded. Current work (src/search, src/proto, src/lofi, src/study) is designed in code first and reconciled to Figma afterwards, so the project mode is prototype-first."
 }
