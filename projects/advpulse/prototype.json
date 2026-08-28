@@ -1,15 +1,13 @@
 {
-  "hostProjectPath": "/Users/cschnetzler/advpulse/prototype",
+  "hostProjectPath": "~/advpulse/prototype",
   "stack": "react-vite",
-  "screensDir": "/Users/cschnetzler/advpulse/prototype/src/screens",
-  "componentsDir": "/Users/cschnetzler/advpulse/prototype/src/components",
-  "tokensCss": "/Users/cschnetzler/advpulse/prototype/src/index.css",
-  "devCommand": "npm run dev",
-  "fixedCanvasWidth": 1440,
-  "deployTarget": "Vercel preview (not yet wired)",
   "mode": "prototype-first",
   "verbatimPaths": [
     "src/screens/*.tsx"
   ],
-  "notes": "Screens under src/screens are May-2026 verbatim translations and stay guarded. Current work (src/search, src/proto, src/lofi, src/study) is designed in code first and reconciled to Figma afterwards, so the project mode is prototype-first."
+  "tokensPath": "~/advpulse/prototype/src/index.css",
+  "devCommand": "npm run dev",
+  "fixedCanvasWidth": 1440,
+  "deployTarget": "not wired",
+  "notes": "src/screens holds May-2026 verbatim translations and stays guarded. Current work (src/search, src/proto, src/lofi, src/study) is designed in code first and reconciled to Figma afterwards, which is why mode is prototype-first. A lo-fi wireframe under src/lofi ships as a published artifact via a separate build."
 }

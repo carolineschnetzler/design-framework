@@ -17,6 +17,16 @@ Turn a vague idea or request into a structured design brief that all downstream 
 
 ## Process
 
+### Step 0: Scaffold the project folder
+
+If `projects/<name>/` does not exist, create it before dispatching anyone:
+
+1. Copy `templates/project.json` in and fill what you already know. This file is how the framework knows the project exists — everything else can come later.
+2. **Ask where the project's canonical docs live.** Many products already keep their design documentation somewhere else, in the product repo or a team wiki. If so, point at it under `canonicalDocs` and **do not copy anything in** — a copy is a contradiction waiting to happen.
+3. Copy `templates/design-state.md` in and date it. Decisions start accumulating from the first conversation, not from the first screen.
+
+Do not create `figma.json` or `prototype.json` yet. Those describe artifacts that do not exist during discovery, and guessing at them produces config that is wrong in a way nobody notices.
+
 ### Step 1: Understand the Problem
 
 Dispatch the **design-strategist** agent to:
@@ -51,7 +61,15 @@ The design-strategist recommends a direction:
 - What trade-offs this direction accepts
 - What constraints bound the solution (technical, business, design)
 
-### Step 5: The User Reviews
+### Step 5: Name the design systems
+
+Before writing the brief, establish how many design systems this product has. **More than one is the norm, not an edge case** — a product app and its marketing surfaces usually diverge in type and color, and a physical product has a print system alongside a web one.
+
+For each: what it governs, where its source of truth lives. Then name **exhaustively** what they share — usually one accent color and nothing else. "They share the palette" is not an answer; it is the absence of one, and it is how two systems quietly become one muddy system.
+
+If the product genuinely has one system, record that explicitly so nobody re-litigates it later.
+
+### Step 6: The User Reviews
 
 Present the draft brief to the user. They may:
 - Approve it as-is
@@ -63,6 +81,8 @@ Iterate until they approve.
 
 ---
 
+---
+
 ## Output
 
 Write `projects/<name>/design-brief.md` with:
@@ -70,8 +90,11 @@ Write `projects/<name>/design-brief.md` with:
 - **Users** — Who, what they need, what context
 - **Principles** — 3-5 with rationale
 - **Direction** — Recommended approach with trade-offs
+- **Design systems** — What exists, what each governs, what they share
 - **Constraints** — What bounds the solution
 - **Success criteria** — How to know the design worked
+
+Plus `projects/<name>/project.json` and `design-state.md` from Step 0.
 
 ---
 

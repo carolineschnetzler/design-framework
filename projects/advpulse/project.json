@@ -3,14 +3,25 @@
   "summary": "B2B sales intelligence for financial services. Distribution teams find, qualify, and reach RIA firms from public filings.",
   "status": "active",
   "designSystems": [
-    { "name": "Product UI", "governs": "the application, every in-app screen", "doc": "design-system.md" },
-    { "name": "Brand / Marketing", "governs": "logo, marketing site, pitch, social, print, lifecycle email", "doc": "brand-guidelines.md" }
+    {
+      "name": "Product UI",
+      "governs": "the application, every in-app screen",
+      "doc": "design-system.md"
+    },
+    {
+      "name": "Brand / Marketing",
+      "governs": "logo, marketing site, pitch, social, print, lifecycle email",
+      "doc": "brand-guidelines.md"
+    }
   ],
-  "sharedAcrossSystems": ["the accent green"],
+  "sharedAcrossSystems": [
+    "the accent green"
+  ],
   "handoffTarget": {
     "kind": "changelog",
-    "path": "design-changes.md",
-    "note": "The implementing engineer reads a running change log plus comments left on the design file. Opt-in only — see the changelog skill."
+    "path": "~/.claude/projects/-Users-cschnetzler/memory/design-changes-for-jenn.md",
+    "note": "The implementing engineer reads a running change log plus comments left on the Figma file. The log lives outside this repo and is the canonical copy \u2014 do not duplicate it here. Appended only on explicit request; see the changelog skill."
   },
-  "canonicalDocs": {}
+  "canonicalDocs": {},
+  "reviewRhythm": "Batched. Feedback arrives as native Figma comments or as annotation pins from the running prototype, worked as a list via /design-feedback. Comments are never deleted or resolved by an agent."
 }

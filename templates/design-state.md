@@ -53,3 +53,7 @@ This file is the running record of design decisions, open questions, and design 
 ## Retrospective
 
 [Filled in by the /retro workflow at project end.]
+
+---
+
+> **This file is not the engineering changelog.** Decisions and their rationale live here. What an implementing engineer needs to pick up lives in `design-changes.md`, written only via `/changelog` on explicit request. Keeping them separate matters: this file is for understanding *why*, that one is for building *what*.

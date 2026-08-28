@@ -7,3 +7,7 @@ node_modules/
 
 # Local Claude Code settings (per-machine overrides)
 .claude/settings.local.json
+
+# Client product screenshots kept locally for reference, not published.
+# This repo is public; screenshots of a client's shipped UI are theirs to publish, not ours.
+projects/*/documentation site screenshots/

@@ -5,7 +5,8 @@
 #
 # Which paths are guarded is declared per project in projects/<name>/prototype.json:
 #
-#   { "stack": "react-vite",
+#   { "hostProjectPath": "~/project",          // ~ is expanded
+#     "stack": "react-vite",
 #     "mode": "translate",                     // or "prototype-first" to disable the check
 #     "verbatimPaths": ["src/screens/*.tsx"] } // globs, relative to hostProjectPath
 #
@@ -39,9 +40,12 @@ for cfg in glob.glob(os.path.join(fw, "projects", "*", "prototype.json")):
     if d.get("mode") == "prototype-first":
         continue
     host = d.get("hostProjectPath", "")
-    if not host or not target.startswith(os.path.realpath(host) + os.sep):
+    if not host:
         continue
-    rel = os.path.relpath(target, os.path.realpath(host))
+    host = os.path.realpath(os.path.expanduser(host))   # ~ is accepted in project configs
+    if not target.startswith(host + os.sep):
+        continue
+    rel = os.path.relpath(target, host)
     for pat in d.get("verbatimPaths", []):
         if fnmatch.fnmatch(rel, pat):
             print(os.path.basename(os.path.dirname(cfg)))
