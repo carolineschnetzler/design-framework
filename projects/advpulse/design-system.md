@@ -1,8 +1,24 @@
-# Design System — AdvPulse
+# Design System — AdvPulse (Product UI)
 
+> System: **Product UI** — governs the AdvPulse application (every in-app screen)
 > Theme: Dark mode (primary) + Light mode (defined, not yet shipped in screens)
-> Last updated: 2026-05-01
+> Last updated: 2026-07-08 (live Figma re-audit: brand/black→gray/900, brand/dark teal flagged, Mono S text style added; Two-Systems framing added 2026-06-30)
 > Source: Live Plugin API enumeration of all variable collections, text styles, effect styles, and paint styles
+
+---
+
+## Two Systems — Read First
+
+AdvPulse runs on **two distinct design systems** with different jobs. This document is the **Product UI** system. The **Brand / Marketing** system (logo, website, pitch, social, print, email) lives in [`brand-guidelines.md`](brand-guidelines.md). Do not mix them.
+
+| | **Product UI** (this doc) | **Brand / Marketing** (`brand-guidelines.md`) |
+|---|---|---|
+| **Governs** | The AdvPulse application | Logo, marketing website, pitch deck, social, print, email |
+| **Type** | Sora · DM Sans · Fragment Mono | Playfair Display · Plus Jakarta Sans · IBM Plex Mono |
+| **Color** | Token system (gray/green/orange-error/violet-blue), Dark + Light | Pulse / Deep Teal / Ink / Mist / Paper (5 fixed roles) |
+| **Source of truth** | Figma `kFyd7XSbESiizgbP6u8jAF` (live tokens) | `brand-guidelines.md` + Brand & Style Guide |
+
+**The only shared value** is the green: product **`color/green/500` (`brand/green`)** = brand **Pulse `#18DD65`**. Everything else is intentionally different. The two worlds meet only at that green and where a product screenshot sits inside a marketing surface.
 
 ---
 
@@ -124,7 +140,10 @@ All Semantic tokens alias Base primitives. The table below shows the alias targe
 |-------|------|-------|
 | `brand/green` | → color/green/500 (#18dd65) | → color/green/500 (#18dd65) |
 | `brand/white` | → color/gray/50 (#fafafa) | → color/gray/50 (#fafafa) |
-| `brand/black` | → color/gray/1000 (#000000) | → color/gray/1000 (#000000) |
+| `brand/black` | → color/gray/900 (#1c1c1c) | → color/gray/900 (#1c1c1c) |
+
+> `brand/black` was retargeted from gray/1000 (#000000) to gray/900 (#1c1c1c) — a softer brand black, confirmed intentional.
+> A stray `brand/dark teal` (raw #113535 = Brand Deep Teal) briefly appeared in this collection; it was unused and deleted on 2026-07-08 — Deep Teal is marketing-only and lives in [`brand-guidelines.md`](brand-guidelines.md).
 
 ### Surfaces
 | Token | Dark | Light |
@@ -461,10 +480,12 @@ Plus legacy `button/Color` raw (#ffffff, both modes) — used for icon button gl
 ### Font Families
 - **Sora** — Display, headings, labels, numbers
 - **DM Sans** — Body text
-- **Fragment Mono** — Task update logs (used in screens; not currently a registered text style)
+- **Fragment Mono** — Task update logs / agent activity (now a registered text style: `Mono S`, 13px)
 - **Inter** — `Label Italics` only
 
-### Text Styles (24 styles, all confirmed via `getLocalTextStylesAsync`)
+> These are the **Product UI** faces. The Brand / Marketing system uses a different trio (Playfair Display / Plus Jakarta Sans / IBM Plex Mono) — see [`brand-guidelines.md`](brand-guidelines.md). Never use brand faces in-app or product faces in marketing.
+
+### Text Styles (25 styles, all confirmed via `getLocalTextStylesAsync`)
 
 | Style | Font | Weight | Size | Case | Letter spacing |
 |-------|------|--------|------|------|----------------|
@@ -482,6 +503,7 @@ Plus legacy `button/Color` raw (#ffffff, both modes) — used for icon button gl
 | Body MB | DM Sans | Bold (700) | 16 | Original | 0 |
 | Body S | DM Sans | Regular (400) | 14 | Original | 0 |
 | Body XS | DM Sans | Regular (400) | 12 | Original | 0 |
+| Mono S | Fragment Mono | Regular (400) | 13 | Original | 0 |
 | Label L | Sora | Light (300) | 16 | UPPER | 0 |
 | Label M | Sora | Light (300) | 14 | UPPER | 0 |
 | Label S | Sora | Light (300) | 10 | UPPER | 0 |
@@ -526,25 +548,29 @@ Corrections from previous docs:
 ### Core Controls
 | Component | Node ID | Variants |
 |-----------|---------|----------|
-| Button | 153:1302 | Primary/Secondary x Default/Hover/Disabled/Focus |
+| Button | 153:1302 | Primary/Secondary/Danger x Default/Hover/Disabled/Focus x Default/Small/Big |
 | Button (Big) — Primary | 3792:7528 | — |
 | Button (Big) — Secondary | 3793:7558 | — |
 | Button/Icon/Big | 152:890 | Primary/Secondary icon buttons |
-| Toggle | 564:7993 | On/Off |
+| Text Button | 559:7213 | Default/Hover/Focus |
+| Link | 2852:5361 | Default/Hover/Focus |
+| Toggle | 564:7993 | On/Off + Focus-on/Focus-off |
 | Checkbox | 343:1446 | Default/Hover/Disabled/Focus x Selected/Unselected |
 | RadioButton | 361:2132 | Default/Hover/Disabled/Focus x Selected/Unselected |
 | Search | 312:1610 | Default/Active |
 | Segmented Control | 3020:12221 | Classic 3020:12220, Agent 3020:12222 |
+| Segment Item | 3020:12203 | Selected/Inactive/Hover/Focus |
 
 ### Form Controls
 | Component | Node ID | Variants |
 |-----------|---------|----------|
 | Dropdown | 343:5788 | Empty/Filled x Default/Hover/Disabled/Focus |
-| Dropdown Item | 343:1757 | Checkbox/RadioButton type x states |
+| Dropdown Item | 343:1757 | Checkbox/RadioButton type x Default/Hover/Disabled/Focus |
 | Dropdown-pill | 341:6204 | Incomplete/Working/Complete x states |
 | Filter chip | 343:5807 | Default/Hover/Disabled/Focus |
 | RangeSlider | 363:4875 | Full/Small x Default/Disabled |
-| Pill | 210:1055 | Default 210:1053, Selected 343:5512 |
+| Pill | 210:1055 | Default/Hover/Selected/Hover-selected/Focus/Focus-selected (Default 210:1053, Selected 343:5512) |
+| Settings Input Field | 3742:6018 | Default/Hover/Focus/Disabled |
 
 ### Chat & Messaging
 | Component | Node ID | Variants |
@@ -577,27 +603,53 @@ Corrections from previous docs:
 ### Data Display
 | Component | Node ID | Notes |
 |-----------|---------|-------|
-| Table Row | 2968:8836 | — |
-| Top-Result-Card | 2852:5389 | — |
+| Table Row | 2968:8836 | State=Default/Alt x Style=Default/Hover/Focus |
+| Table Cells — Firm/Website/Contact-Block | 2968:8807 / 2968:8814 / 3516:8590 | Default/Hover/Focus |
+| Top-Result-Card | 2852:5389 (set 4039:8695) | Default/Hover/Focus |
 | Simple Table Cell | 522:3744 | Default/Header |
 | Bullet result | 522:3588 | Firm name with CRD |
 | Badge | 538:2584 | Complete/In Progress |
-| File Upload | 153:1162 | File name + size |
+| NotificationRow | 3894:6707 | Default/Hover/Focus |
+| Session Card | 3934:11089 | Default/Hover/Focus |
+| File Upload | 153:1162 | File name + size (single state — needs Hover/Focus/Disabled, see design debt) |
 
 ### Account & Menus
 | Component | Node ID | Notes |
 |-----------|---------|-------|
-| Avatar | 2844:2623 | Default Primary 151:761 |
+| Avatar | 2844:2623 | Primary/Secondary x Default/Hover/Disabled/Focus x Default/Small (Default Primary 151:761) |
+| Menu Item | 2576:8512 | Default/Disabled/Focus x All Items/Sign Out x Hover=true/false |
 | Account Menu | 2596:8994 | Also 3690:9348 |
 | Settings Modal | 3772:11546 | Profile / Security / Notifications tabs |
+| Settings Nav Item | 3740:6010 | Active/Inactive/Hover/Focus |
 | NotificationPopover | 3941:7769 | — |
 | Tooltip | 3905:7568 | — |
-| Session Card | 3934:11089 | — |
+| Folder Item | 3632:20574 | Default/Hover/Focus (in Nav Drawer) |
+| Chat Item | 3632:20605 | Default/Hover/Focus (in Nav Drawer) |
 | Timeline Row | 109:985 | — |
 | Export Modal | 3548:8791 | — |
 
 ### Icons
 23+ icons at 16px and 24px sizes — see canonical Components page (`12:611`) under the icons section, plus the dedicated Icons page (`12:610`).
+
+---
+
+## Focus State Pattern (added 2026-05-13)
+
+**Universal focus ring:** every interactive component's Focus variant uses a 1px stroke bound to `border/tertiary` (gray/50 in dark, gray/1000 in light — i.e. white-on-dark, black-on-light), `strokeAlign: INSIDE`.
+
+This pattern applies to all keyboard-focusable elements. Component-scoped focus tokens (e.g. `button/primary/border-focus`, `dropdown/border-focus`) exist for components that need to deviate from the default — but the default ring should be used everywhere else, including on components that don't have their own focus tokens.
+
+**Per-component focus sources** (where they exist):
+- `button/{primary,secondary,danger}/border-focus`
+- `checkbox/border-focus`, `checkbox/selected-border-focus`
+- `radio/border-focus`, `radio/selected-border-focus`
+- `dropdown/border-focus`
+- `dropdown-pill/{incomplete,working,completed}/border-focus`
+- `filter-chip/border-focus`
+
+**No new focus tokens were created during the 2026-05-13 audit.** The 17 components without their own focus tokens (Pill, Toggle, Segment Item, Folder Item, Chat Item, Firm Cell, Website Cell, Contact Block, NotificationRow, Session Card, Top-Result-Card, Table Row, Menu Item, Avatar, Text Button, Link, Settings Nav Item) all bind directly to `border/tertiary`.
+
+**Exempt from focus rings:** display-only components (Tooltip, Badge, Timestamp, Status indicator, Progress indicator, Agentic Cards, Message Bubble), and non-keyboard-focusable elements (RangeSlider — thumb-level focus is an outstanding design debt item, not a component-level ring).
 
 ---
 
@@ -620,6 +672,26 @@ Corrections from previous docs:
 - Orange-error (#ff4520) reserved for danger and error states (text/error, border/error, button/danger)
 
 ---
+
+## Audit Notes (2026-07-08)
+
+- **Live Figma re-pull (Base + Semantic + text styles) to answer "is the dev repo current?"** Base is unchanged at 60 primitives (no `blue` scale — that was never a Figma variable). Semantic is **232** and text styles **25** after this pass.
+- **`brand/black` retargeted** gray/1000 (#000000) → gray/900 (#1c1c1c). Confirmed intentional (softer brand black).
+- **`brand/dark teal` deleted** — a raw `#113535` (Brand Deep Teal) token had been added to the Product Semantic collection but was bound to **zero nodes** across all 9 pages (~23k nodes scanned). Confirmed marketing-only and removed from Figma (Semantic 233 → 232). Deep Teal lives in the brand system.
+- **`Mono S` text style added** — Fragment Mono 13px; Fragment Mono is now a registered style rather than an unregistered in-screen face.
+- **Downstream sync:** the `puremath-ai/chatbot-design` dev repo (`design-updates` branch) was brought current in the same pass — fixed two stale values it carried (`border/card` Dark `#8c8c8c`→`#6e6e6e`, `surface/table-row` Light `#ffffff`→`#f5f5f5`), removed its stale `blue/*` scale, and added `Mono S` + `Number XXS`. This canonical doc and the prototype CSS already had the correct `border/card`/`table-row` values; only the repo had drifted on those.
+- **Not yet reflected in prototype CSS:** `~/advpulse/prototype/src/index.css` (last synced 2026-05-13) still has `brand/black` #000000 and lacks `brand/dark teal`. Re-run `/sync-tokens` when convenient — deferred pending the `brand/dark teal` decision.
+
+## Audit Notes (2026-05-13)
+
+- **Three-way drift audit (Figma ↔ design-system.md ↔ prototype CSS):** confirmed Figma and this doc agree on **every** Base primitive, Semantic token, and text style (0 drift across 292 variables + 24 text styles).
+- **Prototype CSS regenerated via /sync-tokens:** `~/advpulse/prototype/src/index.css` now mirrors Figma 1:1 — all 60 Base primitives + all 232 Semantic tokens in both Dark (`:root` default) and Light (`.theme-light` class) modes. Semantic tokens are `var(--base-primitive)` aliases rather than resolved hex, so a single Base edit cascades. Prior CSS was generated 2026-04-30, contained one wrong value (`--border-card: #8c8c8c`, should be `#6e6e6e`), and was missing ~80 tokens (all input/*, button focus/disabled/hover states, danger, light mode, etc.). All fixed.
+- **Component code note:** `TopResultCard.tsx` has stale fallback values `var(--border-card, #8c8c8c)` in two places (lines 71, 146 at time of audit). Resolved CSS value is now correct (#6e6e6e), so visual output is fine, but the in-code fallbacks drifted from Figma. Other prototype files use the correct fallback `#6e6e6e`. Cleanup item.
+- **Focus state coverage expanded:** added 24 Focus variants across 14 components that previously had no Focus state (Pill, Toggle, Segment Item, Folder Item, Chat Item, Firm Cell, Website Cell, Contact Block, NotificationRow, Session Card, Top-Result-Card, Table Row, Menu Item, Avatar, Text Button, Link, Settings Nav Item). All bound to existing `border/tertiary` at 1px INSIDE. See Focus State Pattern section above.
+- **Responsive sizing fixes:** 14 components updated so instances stretch to fill their auto-layout parents — Top Nav, Settings Sections (Profile/Notifications/Security), Settings Avatar Row, Settings Nav Item, Settings Input Field, Session Card, Dropdown Item, DropdownList (SearchSelect + Select), Pill Side Scroll, Range Display, RangeSlider Full. Variants inside component sets received `layoutSizingHorizontal = FILL`; standalone components received `layoutAlign = STRETCH` (top-level components can't take FILL directly).
+- **No new tokens added** — all new variants reuse existing `border/tertiary` for the focus ring.
+- **RangeSlider** Focus variant intentionally NOT added at the component level — keyboard focus belongs on the thumb element, not a frame ring. Tracked as design debt.
+- **Singleton components without state variants** (File Upload, Prompt Suggestion, List Item) skipped — adding Focus requires converting to a component set with full state matrix; tracked as design debt.
 
 ## Audit Notes (2026-05-01)
 

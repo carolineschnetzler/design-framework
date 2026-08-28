@@ -1,6 +1,6 @@
 ---
 name: handoff
-description: "Produce an engineering-ready handoff spec compatible with the Backend Engineer's chatbot-pm sprint system. Use when the user says /handoff, 'get this ready for the Frontend Engineer', 'prepare for engineering', 'write the spec', or when approved designs need to move to implementation."
+description: "Produce an engineering-ready handoff spec in the format the project declares. Use when the user says /handoff, 'get this ready for engineering', 'prepare for the dev', 'write the spec', or when approved designs need to move to implementation."
 ---
 
 # Handoff Workflow
@@ -11,7 +11,9 @@ Triggered by `/handoff` or when the user says to prepare work for engineering (t
 
 ## Purpose
 
-Produce a handoff spec so complete that the Frontend Engineer can implement without asking design questions. Every ambiguity left in the spec becomes a Slack thread later. The spec format is compatible with the Backend Engineer's chatbot-pm sprint system.
+Produce a handoff spec so complete that the implementing engineer never has to ask a design question. Every ambiguity left in the spec becomes a Slack thread later.
+
+**The format is declared per project.** Read `handoffTarget` from the project's `project.json` — a sprint or issue tracker, a PR description, a plain markdown spec, or an ongoing changelog. Match what the receiving engineer actually reads. A perfect spec in a format nobody opens is not a handoff.
 
 ---
 
@@ -37,12 +39,12 @@ Flag any critical findings to the user before proceeding.
 
 ### Step 3: Write the Handoff Spec
 
-The **design-builder** writes `projects/<name>/handoff-spec.md` in a format compatible with the Backend Engineer's chatbot-pm task system. Each spec contains one or more tasks, each structured as:
+The **design-builder** writes `projects/<name>/handoff-spec.md`. Where the project's `handoffTarget` names a tracker, shape each task to that tracker's fields. The default structure:
 
 ```
 ## Task: [Title]
 
-**Component:** chatbot-server (or other target)
+**Component:** <the repo or service where the work happens>
 **Type:** feature | enhancement | fix
 **Priority:** high | medium | low
 
@@ -84,18 +86,19 @@ Present the handoff spec. They may:
 ## Output
 
 - A production-ready Figma file (cleaned by design-builder)
-- `projects/<name>/handoff-spec.md` formatted for chatbot-pm
+- `projects/<name>/handoff-spec.md` in the project's declared handoff format
 - Design decisions documented in `design-state.md`
 
 ---
 
-## Integration with chatbot-pm
+## Two things engineers actually need that specs usually omit
 
-The Backend Engineer's sprint system expects tasks with:
-- Component assignment (where the work happens)
-- Type classification
-- Priority level
-- Success criteria as a checklist
-- Figma node references for direct linking
+**Behaviour a static frame cannot show.** What defaults to what, what is disabled and when, what happens on the second run, what a sort applies to, what decays over time. This is the part that cannot be inferred from looking at the design, and it is the part most often missing.
 
-The handoff spec matches this format so tasks can be imported directly into a sprint.
+**Contradictions, named as contradictions.** Where two screens disagree, say so and say which is right — or that it is unresolved. "These disagree, worth settling before you build it" is more useful than a confident spec that is wrong on one of them.
+
+---
+
+## Ongoing changes vs. a handoff
+
+A handoff is a one-time package for a body of work. A running log of individual changes is a different thing and belongs in `/changelog`, which is **opt-in only** — never append to it as part of this workflow.

@@ -1,10 +1,10 @@
 # Design Framework
 
-An AI-native design framework built on [Claude Code](https://claude.com/claude-code). It structures how a designer collaborates with AI agents to run discovery, critique, visual execution, and engineering handoff — with opinionated defaults about taste, Figma canvas quality, and cross-project design memory.
+An AI-native design framework built on [Claude Code](https://claude.com/claude-code). It structures how a designer works with AI agents across discovery, critique, canvas execution, running prototypes, and engineering handoff — with opinionated defaults about taste, design-file quality, and cross-project design memory.
 
-The framework isn't a prompt or a plugin. It's a working directory — agents, skills, hooks, and templates — that turns Claude Code into a functioning design team.
+It isn't a prompt or a plugin. It's a working directory — agents, skills, hooks, and templates — that turns Claude Code into a functioning design team.
 
-> **Author:** Caroline Schnetzler · Design consultant, PureMath
+> **Author:** Caroline Schnetzler
 > **License:** MIT
 > **Status:** Working framework, used in production consulting work
 
@@ -12,12 +12,28 @@ The framework isn't a prompt or a plugin. It's a working directory — agents, s
 
 ## Start here
 
-If you have five minutes, read the two standalone docs — they're the most portable parts of the framework:
+If you have five minutes, read the two standalone docs. They're the most portable parts:
 
-- **[15 Figma Canvas Standards](docs/figma-canvas-standards.md)** — Opinionated, enforceable rules for production-ready Figma files. Semantic tokens, auto layout exceptions, slot vs. instance swap, required state variants. Usable on any project, with or without AI.
-- **[Design Memory](docs/design-memory.md)** — A schema for capturing a designer's aesthetic identity in a way that persists across projects and is readable by AI agents. Three-layer structure (Strong Opinions / Soft Patterns / Anti-Patterns). Solves the "taste resets every project" problem.
+- **[Figma Canvas Standards](docs/figma-canvas-standards.md)** — Enforceable rules for production-ready design files. Semantic tokens, auto layout exceptions, slot vs. instance swap, variant architecture, required states. Usable on any project, with or without AI.
+- **[Design Memory](docs/design-memory.md)** — A schema for capturing a designer's aesthetic identity so it persists across projects and is readable by agents. Three layers: strong opinions, soft patterns, anti-patterns. Solves the "taste resets every project" problem.
 
-If you want to understand how the framework works end-to-end, keep reading.
+---
+
+## The principle that keeps it useful
+
+**This framework owns judgment and process. It does not own vendor APIs.**
+
+Design tooling moves faster than any document in a repo can. Figma ships and maintains its own skills for its MCP server. Claude Code ships its own capabilities. Both change continuously, and anything a framework restates about them starts rotting immediately.
+
+So the framework deliberately does **not**:
+
+- restate a vendor's API surface — it loads the vendor's current skill instead
+- enumerate tool names as permanent allowlists — agents inherit their tools, so new capability arrives automatically
+- cache what someone else maintains better
+
+Where a vendor skill and this framework conflict: **the vendor wins on mechanics, the framework wins on policy.** How to bind a variable is theirs. Whether a raw hex is ever acceptable is ours.
+
+The highest-value output of the `/audit` workflow is therefore a **deletion** — finding something this framework explains that the vendor now explains better.
 
 ---
 
@@ -25,30 +41,61 @@ If you want to understand how the framework works end-to-end, keep reading.
 
 ```
 design-framework/
-├── CLAUDE.md                        # Framework-wide instructions for all agents
-├── taste-profile.md                 # Cross-project design memory (the designer's identity)
+├── CLAUDE.md              Framework-wide instructions
+├── install.sh             Symlinks agents + skills into ~/.claude/ so they load everywhere
+├── taste-profile.md       Cross-project design memory
 ├── .claude/
-│   ├── settings.json                # Hooks: session-init, PostToolUse Figma check, Stop log
-│   ├── agents/                      # 9 specialist agents
-│   │   ├── design-strategist.md     # Defines problem, users, principles, direction
-│   │   ├── design-scout.md          # Competitive research + visual references
-│   │   ├── design-lead.md           # Layout, typography, color — primary Figma author
-│   │   ├── design-builder.md        # Production-ready cleanup + handoff spec
-│   │   ├── design-critic.md         # Critique against brief, taste, principles
-│   │   ├── motion-designer.md       # Transitions, Figma canvas prototypes, motion specs
-│   │   ├── content-writer.md        # UI copy — labels, errors, microcopy
-│   │   ├── heuristic-evaluator.md   # Usability, Nielsen heuristics
-│   │   └── accessibility-reviewer.md # WCAG compliance, inclusive design
+│   ├── settings.json      Hooks: session init, canvas standards check, prototype drift check
+│   ├── agents/            11 specialist agents
 │   └── skills/
-│       ├── reference/               # Design principles, taste, component specs
-│       ├── tools/figma-canvas/      # Canvas standards (see docs/figma-canvas-standards.md)
-│       └── workflows/               # /discover /taste /generate-screen /review
-│                                    # /design-debate /handoff /retro /audit
-├── hooks/session-init.sh            # Prints framework status + loaded memory
-├── templates/                       # Brief, state, memory, handoff-spec templates
-├── projects/advpulse/               # Example project using the framework
-└── docs/                            # Shareable standalone docs (canvas standards, design memory)
+│       ├── reference/     design-principles · taste-profile · component-specs · figma-plugin-api
+│       ├── tools/         figma-canvas (policy, not API docs)
+│       └── workflows/     13 workflow skills
+├── hooks/                 session-init · prototype-drift-check
+├── templates/             brief · state · memory · handoff-spec · project.json · prototype.json · figma.json
+├── projects/              One folder per product
+└── docs/                  Shareable standalone docs
 ```
+
+---
+
+## Agents
+
+Eleven specialists. Reviewers are read-only by design — they report, the designer decides, a builder executes.
+
+| Agent | Owns |
+|---|---|
+| design-strategist | Problem, users, principles, direction |
+| design-scout | Competitive research, patterns, visual references |
+| design-lead | Layout, typography, color, canvas composition |
+| design-systems-engineer | Tokens, variables, component libraries, variant architecture |
+| prototype-engineer | Running prototypes in any declared stack |
+| content-writer | UI copy, labels, error messages |
+| motion-designer | Transitions, canvas prototypes, motion specs |
+| design-builder | Production cleanup, engineering handoff |
+| design-critic | Critique against brief and taste |
+| heuristic-evaluator | Usability and intuitiveness |
+| accessibility-reviewer | WCAG compliance, inclusive design |
+
+---
+
+## Workflows
+
+| Workflow | What it does |
+|---|---|
+| `/discover` | Dispatches strategist and scout to write the brief |
+| `/taste` | Builds the project's taste profile from references and conversation |
+| `/generate-screen` | Design-lead creates screens against brief, taste, and system |
+| `/prototype` | Builds a running artifact in the project's declared stack |
+| `/review` | Parallel critique: design, usability, accessibility |
+| `/design-debate` | Forces competing directions to argue before choosing |
+| `/design-feedback` | Works a batch of comments or annotations left by pointing |
+| `/sync-tokens` | Pulls live variables into the code token layer |
+| `/audit-system` | Audits a design system for drift, duplication, missing states |
+| `/handoff` | Cleans the file and writes the engineering spec |
+| `/changelog` | Appends to the engineering log — opt-in only |
+| `/retro` | Reflects, and updates cross-project memory |
+| `/audit` | Checks the framework against current tooling |
 
 ---
 
@@ -56,69 +103,29 @@ design-framework/
 
 ### 1. Taste is cross-project, not project-bound
 
-Most design systems tether taste to a project brief. The framework separates them:
+Most systems tether taste to a brief. This one separates them. The root `taste-profile.md` holds what belongs to the **designer** — opinions that would still hold for a different client and a different medium. Anything that would change for another product lives in that project's own profile.
 
-- **Cross-project memory** (`taste-profile.md`) — strong opinions, soft patterns, anti-patterns that belong to the designer, not any single project
-- **Project taste profile** (`projects/<name>/taste-profile.md`) — what's specific to this brief
+The test is real, not decorative: one project in this repo uses large radii and rejects glass; another uses zero radius and embraces it. An opinion that flips between two products was never cross-project memory.
 
-Agents load both. Cross-project memory acts as constraint (for strong opinions), suggestion (for soft patterns), or exclusion (for anti-patterns). The `/retro` workflow updates cross-project memory at project end — so taste is versioned, not static.
+### 2. File quality is enforced, not documented
 
-Full schema at [docs/design-memory.md](docs/design-memory.md).
+A `PostToolUse` hook runs after every design-file write and checks against the canvas standards. A second hook guards prototype paths each project declares, so translated screens can't quietly become authored ones.
 
-### 2. Figma canvas quality is enforceable, not optional
+Most frameworks document standards. This one enforces them — and where a rule can't be enforced, it says so rather than pretending.
 
-A `PostToolUse` hook runs after every Figma canvas edit, checking against the canvas standards (semantic tokens, auto layout, naming, state completeness). Violations are flagged and, where automatic, fixed immediately.
+### 3. Principles must create trade-offs
 
-Most design frameworks document standards. This one enforces them.
+A principle that doesn't create a trade-off is a platitude. "Be intuitive" isn't a principle. "Prioritize speed over completeness" is. The strategist names the trade-off every principle creates and flags the ones that don't.
 
-Full standards at [docs/figma-canvas-standards.md](docs/figma-canvas-standards.md).
+### 4. Products usually have more than one design system
 
-### 3. Design principles must create trade-offs
+A product app and its marketing surfaces diverge in type and color, and they should. A physical product has a print system and a web system. The framework treats this as the norm: name the systems, define what each governs, name exhaustively what they share, then adhere strictly by surface.
 
-The `design-principles` skill teaches agents that a principle that doesn't create a trade-off is a platitude. "Be intuitive" isn't a principle. "Prioritize speed over completeness" is.
+### 5. Prototypes are first-class, in whatever stack the project uses
 
-The `design-strategist` agent is trained to name the trade-off every principle creates — and to flag principles that don't. The `design-critic` agent uses those principles as the standard for critique.
+Stack is declared in `prototype.json`, never assumed — React, a Shopify theme, a static site, a published artifact, print production files.
 
-### 4. Workflows over freeform prompts
-
-The framework ships with eight workflow skills that match the phases of a real design engagement:
-
-| Workflow | What it does |
-|---|---|
-| `/discover` | Dispatches design-strategist and design-scout to write the brief |
-| `/taste` | Builds or updates the project's taste profile from references and conversation |
-| `/generate-screen` | Design-lead creates screens against brief, taste, and system |
-| `/review` | Parallel critique from design-critic, heuristic-evaluator, accessibility-reviewer |
-| `/design-debate` | Forces competing directions to argue their case before choosing |
-| `/handoff` | Design-builder cleans the file and writes the engineering spec |
-| `/retro` | Post-project reflection, updates cross-project memory |
-| `/audit` | Checks the framework against current Claude Code and Figma MCP capabilities |
-
-Each workflow is a `SKILL.md` file — not just a prompt, but a structured process with steps, outputs, and quality gates.
-
-### 5. Role-based model assignments
-
-Agents declare a role in their frontmatter (`creative` or `analytical`). The model for each role is mapped once in `CLAUDE.md`:
-
-```
-creative   → claude-opus-4-6   (subjective judgment, visual decisions)
-analytical → claude-sonnet-4-6 (research, review, structured evaluation)
-```
-
-When new models release, update the mapping once — every agent inherits automatically.
-
----
-
-## Who this is for
-
-- **Designers using Claude Code** who want a real working structure instead of ad-hoc prompts
-- **Design engineers** evaluating how to structure AI-assisted design work in their own codebase
-- **Consultants** who want cross-project design memory that survives client churn
-- **Teams building AI design tools** who want a reference for how agents, skills, hooks, and memory interact in production
-
-This isn't a general-purpose framework. It reflects the author's opinions on design process, Figma practice, and what AI agents should and shouldn't own. The parts most likely to generalize — the canvas standards and the design-memory schema — are in `docs/` as standalone documents.
-
-**What this framework does not do:** It produces Figma artifacts and engineering specs, not interactive code prototypes. For working prototypes, agents are directed to a separate host project that already contains the design system as code components. See the Prototyping section in `CLAUDE.md` for details.
+Direction of flow is declared too. Translating an existing design is faithful and narrow. **Designing in code is legitimate** when a static frame can't answer the question, and then the design file follows. Authoring is legitimate when asked for. What's forbidden is inventing silently while claiming to translate.
 
 ---
 
@@ -127,29 +134,39 @@ This isn't a general-purpose framework. It reflects the author's opinions on des
 ```
 git clone https://github.com/carolineschnetzler/design-framework.git
 cd design-framework
+./install.sh
 ```
 
-Claude Code will load `CLAUDE.md`, `.claude/settings.json`, and the agent/skill definitions automatically when you run `claude` from the directory. The session-init hook prints framework status on startup.
+`install.sh` symlinks the agents and skills into `~/.claude/`, so they load in **every** session rather than only when Claude Code starts in this directory. Symlinks, not copies — the repo stays the source of truth and edits take effect immediately. `--status` shows what's linked; `--uninstall` removes only what it created.
 
-To use it with your own project:
-1. Copy the framework into your working directory
-2. Remove the `projects/advpulse/` example and create a new project folder
-3. Run `/discover` to start the first project
+Hooks stay project-scoped on purpose. They run when you work from this directory, not against unrelated repos.
 
-To adopt just one piece (e.g., the canvas standards): copy `docs/figma-canvas-standards.md` and the matching `.claude/skills/tools/figma-canvas/SKILL.md` into your own setup.
+To start a project: copy `templates/project.json` into `projects/<name>/` and run `/discover`.
+
+To adopt one piece: `docs/figma-canvas-standards.md` and `docs/design-memory.md` stand alone.
+
+---
+
+## Who this is for
+
+- **Designers using Claude Code** who want a real structure instead of ad-hoc prompts
+- **Design engineers** structuring AI-assisted design work in their own codebase
+- **Consultants** who need design memory that survives client churn
+- **Teams building AI design tools** who want a reference for how agents, skills, hooks, and memory interact in production
+
+It reflects one designer's opinions about process and craft. The parts most likely to generalize are in `docs/`.
 
 ---
 
 ## Philosophy
 
-The framework is built on three assumptions:
-
-1. **AI agents should do the scaffolding, not the judgment.** Agents write briefs, run critiques, and clean up Figma files. The designer makes the design decisions.
-2. **Taste is the hardest thing to transfer.** Capturing it in a durable, agent-readable format is the highest-leverage move for AI-assisted design work.
-3. **Production quality requires enforcement.** Documenting standards isn't enough. The framework enforces them via hooks, so violations don't survive a session.
+1. **Agents do the scaffolding, not the judgment.** They write briefs, run critiques, clean files, build prototypes. The designer makes the design decisions.
+2. **Taste is the hardest thing to transfer.** Capturing it durably is the highest-leverage move in AI-assisted design work.
+3. **Production quality requires enforcement.** Documenting a standard isn't enough. Hooks enforce, so violations don't survive a session.
+4. **Know what you don't own.** A framework that tries to own its vendors' APIs is a framework that is always wrong.
 
 ---
 
 ## Feedback
 
-If you're using this or an adaptation of it, feedback is welcome. Open an issue on [GitHub](https://github.com/carolineschnetzler/design-framework).
+Open an issue on [GitHub](https://github.com/carolineschnetzler/design-framework).

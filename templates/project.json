@@ -1,0 +1,17 @@
+{
+  "name": "<Project name>",
+  "summary": "<One sentence: what this product is and who it serves>",
+  "status": "active | paused | complete",
+  "designSystems": [
+    { "name": "<e.g. Product UI>", "governs": "<which surfaces>", "doc": "design-system.md" }
+  ],
+  "sharedAcrossSystems": ["<name every value the systems share, exhaustively — usually one accent and nothing else>"],
+  "handoffTarget": {
+    "kind": "tracker | pr | spec | changelog",
+    "path": "<where the receiving engineer actually reads>",
+    "note": "<anything about how they consume it>"
+  },
+  "canonicalDocs": {
+    "_comment": "Only when a doc lives outside this repo. Point at it; never copy it in."
+  }
+}

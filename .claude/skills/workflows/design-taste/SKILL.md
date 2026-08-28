@@ -74,7 +74,9 @@ Iterate until they approve.
 
 Write or update `projects/<name>/taste-profile.md`.
 
-If this is the first taste session for PureMath, also seed `taste-profile.md` with the user's strongest opinions as cross-project memory.
+If this is the first taste session in this framework, also seed the root `taste-profile.md` with the user's strongest opinions as cross-project memory.
+
+**Keep the root file small.** Only opinions that would hold for a different client and a different medium belong there. Anything that would change for another product belongs in the project's own profile. A bloated cross-project file stops being read, and worse, starts contradicting itself across projects.
 
 If updating an existing taste profile, note what changed and why in `design-state.md`.
 

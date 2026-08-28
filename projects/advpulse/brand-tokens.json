@@ -1,0 +1,63 @@
+{
+  "$name": "AdvPulse Brand",
+  "$description": "Brand / Marketing design tokens — the external-facing identity system (logo, website, pitch, social, print, email). SEPARATE from the Product UI system (see design-tokens.json / DESIGN_SYSTEM.md). The two systems share only the green (Pulse = product green/500 = #18DD65). Source: AdvPulse Brand & Style Guide + brand-guidelines.md. Brand artifacts are hand-built, not Figma-variable-driven, so these are curated values, not a live token dump.",
+  "$version": "1.0.0",
+  "$updatedAt": "2026-07-08",
+  "$system": "brand-marketing",
+
+  "color": {
+    "pulse": { "hex": "#18DD65", "rgb": [24, 221, 101], "role": "Signal / accent — used sparingly, one thing at a time" },
+    "deep-teal": { "hex": "#113535", "rgb": [17, 53, 53], "role": "Branded dark ground" },
+    "ink": { "hex": "#1C1C1C", "rgb": [28, 28, 28], "role": "Neutral text and UI" },
+    "mist": { "hex": "#7C8D8D", "rgb": [124, 141, 141], "role": "Muted accent" },
+    "paper": { "hex": "#FAFAFA", "rgb": [250, 250, 250], "role": "Light ground (default)" }
+  },
+
+  "colorPairings": {
+    "valid": [
+      "Pulse on Deep Teal",
+      "Paper on Ink",
+      "Ink on Pulse",
+      "Mist on Deep Teal (large sizes only)"
+    ],
+    "invalid": [
+      "Pulse on Paper (fails contrast; neon on white)",
+      "Paper on Pulse",
+      "Deep Teal on Ink (the two darks never pair)",
+      "Ink on Deep Teal",
+      "Mist on Paper (small sizes)"
+    ]
+  },
+
+  "typography": {
+    "fonts": {
+      "serif": { "family": "Playfair Display", "role": "Reserved — one signature hero line per surface (H1). Used with restraint. Never for section titles, sub-heads, running headings, or repeated labels." },
+      "sans": { "family": "Plus Jakarta Sans", "role": "Workhorse — every heading below the hero, plus all body and UI." },
+      "mono": { "family": "IBM Plex Mono", "role": "Labels, buttons, links, data. Always uppercase, positive tracking." }
+    },
+    "scale": [
+      { "level": "Hero (H1)", "family": "Playfair Display", "fallbackFamily": "Plus Jakarta Sans", "weight": 400, "fontSize": 60, "lineHeight": 1.1, "tracking": "-0.01em", "case": "ORIGINAL", "note": "At most once per surface; every other level is Plus Jakarta Sans." },
+      { "level": "Headline (H2)", "family": "Plus Jakarta Sans", "weight": 600, "fontSize": 39, "lineHeight": 1.1, "tracking": "-0.02em", "case": "ORIGINAL" },
+      { "level": "Section title (H3)", "family": "Plus Jakarta Sans", "weight": 700, "fontSize": 31, "lineHeight": 1.2, "tracking": "-0.01em", "case": "ORIGINAL" },
+      { "level": "Subsection (H4)", "family": "Plus Jakarta Sans", "weight": 600, "fontSize": 25, "lineHeight": 1.25, "tracking": "0", "case": "ORIGINAL" },
+      { "level": "Body", "family": "Plus Jakarta Sans", "weight": 400, "fontSize": 16, "lineHeight": 1.6, "tracking": "0", "case": "ORIGINAL" },
+      { "level": "Label / button / link", "family": "IBM Plex Mono", "weight": 500, "fontSize": 14, "lineHeight": 1.2, "tracking": "+0.04em", "case": "UPPERCASE" }
+    ],
+    "baseSize": 16,
+    "scaleRatio": 1.25
+  },
+
+  "logo": {
+    "lockups": {
+      "primary": { "form": "horizontal wordmark", "use": "Default — website header, decks, signage, wide formats", "clearSpace": "height of the globe on all sides" },
+      "secondary": { "form": "stacked", "use": "Square / vertical spaces — social tiles, app stores, narrow columns" },
+      "brandmark": { "form": "globe alone", "use": "Favicon, app icon, social avatar", "minSize": "24px digital" }
+    },
+    "colorways": ["Pulse on Deep Teal", "Paper on Ink", "Ink on Paper"],
+    "misuse": [
+      "Pulse on Paper / Paper on Pulse (neon and white never sit on each other)",
+      "Deep Teal on Ink / Ink on Deep Teal (the two darks never sit together)"
+    ],
+    "avatarSizing": { "instagram": "180x180", "youtube": "250x250", "facebook": "180x180", "x": "400x400" }
+  }
+}

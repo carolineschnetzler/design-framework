@@ -1,0 +1,10 @@
+{
+  "hostProjectPath": "<absolute path to the host project — it lives outside this repo>",
+  "stack": "react-vite | shopify-liquid | static-site | artifact | print",
+  "mode": "translate | prototype-first",
+  "verbatimPaths": ["<globs relative to hostProjectPath that the drift check guards; empty guards nothing>"],
+  "tokensPath": "<the generated token layer /sync-tokens writes to>",
+  "devCommand": "<how to run it>",
+  "deployTarget": "<where it is shared from, if anywhere>",
+  "notes": "<stack quirks worth knowing before debugging the wrong thing>"
+}

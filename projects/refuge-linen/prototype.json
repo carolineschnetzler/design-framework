@@ -1,0 +1,8 @@
+{
+  "hostProjectPath": "/Users/cschnetzler/refugelinen/refuge-theme",
+  "stack": "shopify-liquid",
+  "mode": "translate",
+  "verbatimPaths": [],
+  "devCommand": "shopify theme dev",
+  "notes": "The Shopify CLI is version-sensitive about Node. On the wrong major version every render fails with a network error that never names Node as the cause — check the runtime before debugging the theme. verbatimPaths is empty on purpose: Liquid sections are not design-tool exports, so the drift check does not apply. Quality here is enforced by review, not by the hook."
+}

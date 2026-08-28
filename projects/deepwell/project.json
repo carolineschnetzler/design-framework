@@ -1,0 +1,17 @@
+{
+  "name": "DeepWell",
+  "summary": "Business-interruption loss analysis for litigated insurance claims. A Fulcrum Advisors venture.",
+  "status": "active",
+  "designSystems": [
+    { "name": "Product UI", "governs": "the application", "doc": "~/DeepWell/style-guide.md" }
+  ],
+  "handoffTarget": { "kind": "tbd", "note": "Not yet established." },
+  "canonicalDocs": {
+    "productContext": "~/DeepWell/deepwell-PRODUCT-CONTEXT.md",
+    "designSystem": "~/DeepWell/style-guide.md",
+    "palette": "~/DeepWell/deepwell-palette.md",
+    "tasteProfile": "~/DeepWell/taste-profile.md",
+    "dataViz": "~/DeepWell/dataviz-vocabulary.md"
+  },
+  "note": "Canonical docs live outside this repo and are read from there. Do not copy them into projects/ — a copy is a future contradiction."
+}

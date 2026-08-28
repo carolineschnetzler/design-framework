@@ -53,13 +53,22 @@ The AI can trigger UI state changes (showing tables, expanding filters, navigati
 
 - **Technical:** GPT-4 orchestration with ~6 custom database tools. Dynamic UI via tool calls. SEC/FINRA data (~21,669 firms, ~330,000 advisors).
 - **Business:** $200-500/mo price point (10x cheaper than incumbents). Must feel premium despite lower price.
-- **Design:** Dark mode primary. Light mode planned. Sora + DM Sans type system. Ghost/outline button style.
+- **Design:** Dark mode primary. Light mode planned. Sora + DM Sans type system (Product UI). Ghost/outline button style. Note: marketing/brand surfaces use a separate system — see Design System Constraint below.
 
 ---
 
 ## Design System Constraint
 
-**All design output must strictly adhere to the AdvPulse design system and design tokens.** No values, colors, spacing, typography, or radius outside what is defined in `projects/advpulse/design-system.md`. If a token doesn't exist for what the design needs, flag it to the user — do not improvise. The general cross-project taste at `taste-profile.md` informs the user's preferences but does NOT override the AdvPulse design system.
+**AdvPulse has two design systems — pick the right one for the surface, then adhere to it strictly.**
+
+| Surface | System | Source of truth |
+|---------|--------|-----------------|
+| The AdvPulse application (every in-app screen) | **Product UI** | `projects/advpulse/design-system.md` (Sora/DM Sans/Fragment Mono, token-driven, dark+light) |
+| Logo, marketing website, pitch deck, social, print, lifecycle email, partner marketing | **Brand / Marketing** | `projects/advpulse/brand-guidelines.md` (Playfair/Plus Jakarta/IBM Plex Mono, Pulse/Teal/Ink/Mist/Paper) |
+
+The two systems share **only** the green (`#18DD65`). Never use brand faces or the Pulse/Teal/Ink/Mist/Paper palette in-app, and never use product fonts or in-app tokens in marketing. The lone deliberate exception is a real product screenshot placed inside a marketing layout (e.g. the partner "Platform Preview") — the screenshot keeps Product UI styling; the surrounding frame uses Brand styling.
+
+**Within the chosen system, no values outside what its doc defines.** If a token or style doesn't exist for what the design needs, flag it to the user — do not improvise. The general cross-project taste at `taste-profile.md` informs the user's preferences but does NOT override either AdvPulse system.
 
 ### Project-Specific Design Decisions
 - **No glass/frosted/neumorphic treatments** — AdvPulse is traditional and data-forward. Solid dark surfaces only.
