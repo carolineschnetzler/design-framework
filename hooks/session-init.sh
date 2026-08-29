@@ -54,6 +54,12 @@ PY
   echo ""
 fi
 
+# Structural self-check. Silent when clean; the whole point is that rot
+# announces itself instead of sitting here for months.
+if [ -x "$FRAMEWORK_DIR/doctor.py" ]; then
+  "$FRAMEWORK_DIR/doctor.py" --quiet || true
+fi
+
 AUDIT_FILE="$FRAMEWORK_DIR/audit/latest-audit.md"
 if [ -f "$AUDIT_FILE" ]; then
   echo "Last framework audit: $(head -5 "$AUDIT_FILE" | grep -oE '[0-9]{4}-[0-9]{2}-[0-9]{2}' | head -1)"
