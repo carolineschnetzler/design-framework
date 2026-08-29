@@ -10,6 +10,10 @@ exists because it actually went wrong once and nothing said so for months.
     ./doctor.py --json      machine-readable
     ./doctor.py --repo-only skip machine-local checks (for CI and the cloud audit,
                             which have their own checkout and no ~/.claude)
+    ./doctor.py --errors-only
+                            suppress warnings; for a global session hook, where
+                            only "your agents are broken right now" earns an
+                            interruption during unrelated work
 
 Exit codes: 0 clean · 1 warnings · 2 errors.
 
@@ -305,6 +309,7 @@ def main():
     quiet = "--quiet" in sys.argv
     as_json = "--json" in sys.argv
     repo_only = "--repo-only" in sys.argv
+    errors_only = "--errors-only" in sys.argv
 
     n_agents = check_agents()
     n_skills, skill_names = check_skills()
@@ -318,6 +323,8 @@ def main():
     tool_names = check_currency()
     check_readme(n_agents, n_skills)
 
+    if errors_only:
+        problems[:] = [p for p in problems if p[0] == "error"]
     errors = [p for p in problems if p[0] == "error"]
     warns = [p for p in problems if p[0] == "warn"]
     code = 2 if errors else (1 if warns else 0)

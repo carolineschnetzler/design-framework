@@ -139,7 +139,17 @@ cd design-framework
 
 `install.sh` symlinks the agents and skills into `~/.claude/`, so they load in **every** session rather than only when Claude Code starts in this directory. Symlinks, not copies — the repo stays the source of truth and edits take effect immediately. `--status` shows what's linked; `--uninstall` removes only what it created.
 
-Hooks stay project-scoped on purpose. They run when you work from this directory, not against unrelated repos.
+Hooks stay project-scoped on purpose — the canvas standards check and the prototype drift check run when you work from this directory, not against unrelated repos.
+
+**One exception worth making global.** `doctor.py` checks the framework for the kind of rot that fails silently: unrecognised frontmatter keys, dead symlinks, guards pointing at paths nobody writes to, project configs aimed at directories that no longer exist. Project-scoped, it only runs when you are already in this directory — which is not where a broken agent actually bites you. Add it to `~/.claude/settings.json` so it runs everywhere:
+
+```json
+{ "hooks": { "SessionStart": [ { "matcher": "", "hooks": [
+  { "type": "command",
+    "command": "$HOME/design-framework/doctor.py --quiet --errors-only 2>/dev/null || true" } ] } ] } }
+```
+
+It costs about 0.08s, prints nothing when clean, and `--errors-only` keeps hygiene warnings in the framework directory where they belong. The `|| true` matters: a missing or renamed framework must never block an unrelated session.
 
 To start a project: copy `templates/project.json` into `projects/<name>/` and run `/discover`.
 
