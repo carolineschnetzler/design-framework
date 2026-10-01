@@ -38,13 +38,15 @@ A file in a team where the user holds a **View seat** refuses every write and ca
 
 ---
 
-## 3. The regeneration heuristic
+## 3. Variant switching silently invalidates instance references
 
-Most "the write didn't work" bugs are not write failures, they are **stale node references**. Several operations regenerate a node's subtree, and a reference captured beforehand still resolves while pointing at nothing on screen. The symptom is distinctive: the first `setProperties` works, a second call on the same reference silently does nothing.
+**The general rule is now upstream.** `figma-use` covers stale node references directly — `detachInstance()` invalidating ancestor IDs, slot appends invalidating a child handle, and the fix in both cases: re-discover by traversal from a stable non-instance parent. Read it there; it has worked examples.
 
-Operations that do this include switching an instance's variant, setting a property on a nested instance, and changing the visibility or structure of a main component's children.
+What is not upstream is the **variant** case. Switching an instance's variant, or setting a property on a nested instance, regenerates the subtree. The symptom is distinctive and easy to misread as a logic bug: the first `setProperties` works, and a second call on the same reference silently does nothing — no error, no change.
 
-**The rule:** never hold node references across a mutation. Capture names and IDs before mutating, re-query by ID after, and when updating many instances re-query inside the loop rather than iterating a list captured up front.
+**So when updating many instances, re-query inside the loop** rather than iterating a list captured up front.
+
+If the vendor documents the variant case, delete this section.
 
 ---
 
@@ -60,6 +62,8 @@ This has caused real data loss in this framework: a frame was rebuilt from scrat
 
 ## 5. Node IDs are snapshots, not addresses
 
-IDs shift when nodes are renamed, moved, regenerated, or recreated. **Find frames, sections, and components by name.** Any ID written into a document is a record of where something was, not a way to reach it — treat every stored ID as needing verification before use.
+**This is a documentation policy, not an API claim.** Renaming or moving a node does not change its ID — an earlier version of this file said it did, which was wrong. IDs change when a node is recreated, and when a detach or a regeneration replaces it (§3).
+
+The policy still holds, because the thing that actually rots is the *document*: a node ID pasted into a markdown file is a record of where something was when someone looked, and the file it points into gets rebuilt, duplicated, and reorganised by people who never read the doc. **So find frames, sections, and components by name**, and treat every stored ID as needing verification before use.
 
 This is also why design docs in this framework never carry screen inventories: see the note in `templates/design-state.md`.

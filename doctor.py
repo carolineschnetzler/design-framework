@@ -40,7 +40,7 @@ HOME_CLAUDE = os.path.expanduser("~/.claude")
 AGENT_KEYS = {
     "name", "description", "tools", "disallowedTools", "model", "permissionMode",
     "maxTurns", "skills", "mcpServers", "hooks", "memory", "background", "effort",
-    "isolation", "color", "initialPrompt", "experimental",
+    "isolation", "color", "initialPrompt", "experimental", "omitClaudeMd",
 }
 MODEL_VALUES = {"sonnet", "opus", "haiku", "fable", "inherit"}
 SKILL_KEYS = {"name", "description", "allowed-tools", "metadata", "disable-model-invocation", "license"}
