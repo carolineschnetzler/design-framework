@@ -14,7 +14,7 @@ Design tooling moves faster than any document in this repo can. Figma ships and 
 
 So:
 
-- **Never restate a vendor's API surface here.** Load the vendor's own current skill instead. For Figma that means `figma-use` before any write, plus `figma-generate-design`, `figma-generate-library`, `figma-design-to-code`, and `figma-code-connect` for their respective jobs.
+- **Never restate a vendor's API surface here.** Load the vendor's own current skill instead. For Figma that means `figma-use` before any write, and the matching workflow skill for the job — `figma-generate-design`, `figma-generate-library`, `figma-design-to-code`, `figma-code-connect`, `figma-use-motion`, and others. **That list is examples, not the set.** Figma ships more skills than this file names and adds them without telling anyone; read `skill://index.json` from its MCP server for what exists right now, and pick from that.
 - **Never enumerate tool names as a permanent list.** Agents inherit the tools available to them, so new capability arrives automatically. Where an agent must be constrained, express the *intent* — "you are read-only" — in prose and in `disallowedTools`, not as an allowlist that goes stale the moment a tool is added.
 - **When a vendor skill and this framework appear to conflict: the vendor wins on mechanics, this framework wins on policy.** How to bind a variable is theirs. Whether a raw hex is ever acceptable is ours.
 - **When you notice this framework is behind**, say so in the session and offer `/audit`. Do not quietly work around it.

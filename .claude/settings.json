@@ -14,7 +14,7 @@
     ],
     "PostToolUse": [
       {
-        "matcher": "mcp__figma.*__(use_figma|generate_figma_design|create_new_file)",
+        "matcher": "(?i)mcp__[a-z0-9_]*figma[a-z0-9_]*__(use_figma|generate_figma_design|create_new_file)",
         "hooks": [
           {
             "type": "prompt",

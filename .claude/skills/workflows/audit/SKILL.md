@@ -1,11 +1,11 @@
 ---
 name: audit
-description: "Check framework against latest Claude Code and Figma MCP capabilities, report what could be adopted. Use when the user says /audit, 'is the framework up to date', 'check for new features', or triggered automatically by the biweekly scheduled agent."
+description: "Check framework against latest Claude Code and Figma MCP capabilities, report what could be adopted. Use when the user says /audit, 'is the framework up to date', 'check for new features', or triggered automatically by the monthly scheduled agent."
 ---
 
 # Audit Workflow
 
-Triggered by `/audit`, at the end of `/retro`, or by the biweekly scheduled agent.
+Triggered by `/audit`, at the end of `/retro`, or by the monthly scheduled agent — a cloud routine that runs on the 1st at 15:00 UTC and opens a pull request.
 
 ---
 
@@ -32,8 +32,8 @@ Search for recent updates to:
 
 The framework deliberately does not restate vendor APIs, so this step checks whether the framework is still *pointing at the right things* — not whether it has copied them correctly.
 
-- **Installed plugin versions.** Read `~/.claude/plugins/installed_plugins.json` for the current version and `lastUpdated` of each design-related plugin. Compare against what the framework's skills reference by name.
-- **Skills that shipped since.** List the skills each installed plugin now provides. If a vendor now ships a skill covering something this framework documents itself, **that framework file should shrink or be deleted**, not kept in sync.
+- **The vendor's live skill index.** Read `skill://index.json` through the Figma MCP server for the authoritative list of skills it currently ships, then read the specific skills and their `references/` files that cover whatever this framework documents itself. This is the right source in every environment: a cloud run has no `~/.claude` to inspect, and the served index is versioned with the API rather than with whatever plugin version a laptop happens to have installed.
+- **Skills that shipped since.** Diff that index against the skills this framework names. If a vendor now ships a skill covering something this framework documents itself, **that framework file should shrink or be deleted**, not kept in sync. If the vendor ships a skill no agent here points at, say which agent needs it.
 - **Tool names referenced anywhere in this repo.** Grep for `mcp__` across the framework. Every hit is a maintenance liability. Confirm each still exists, and question whether it needs naming at all.
 - **Guidance changes.** Check the vendor's current documentation for changes to the recommended integration path — remote vs local servers, skills installation, rules files.
 
@@ -87,8 +87,9 @@ Present key findings to the user. They decide which updates to pursue.
 
 ## Scheduled Execution
 
-When run by the biweekly scheduled agent:
+When run by the monthly scheduled agent:
 - Run the full audit process
-- Write the report to `audit/latest-audit.md`
+- Write the report to `audit/latest-audit.md`, replacing the previous one
 - If critical improvements are found (security, breaking changes), flag them prominently
-- the user reviews on their next session
+- Commit to a branch named `audit/YYYY-MM` and open a pull request. Never push to `main`
+- The PR body states what a human needs to decide. **Recommending nothing is a valid outcome** — say so plainly rather than inventing work
