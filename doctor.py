@@ -39,11 +39,31 @@ HOME_CLAUDE = os.path.expanduser("~/.claude")
 # `allowed-tools` and `model: creative` sat here for four months doing nothing.
 AGENT_KEYS = {
     "name", "description", "tools", "disallowedTools", "model", "permissionMode",
-    "maxTurns", "skills", "mcpServers", "hooks", "memory", "background", "effort",
-    "isolation", "color", "initialPrompt", "experimental",
+    "maxTurns", "autoCompactWindow", "skills", "mcpServers", "hooks", "memory",
+    "background", "omitClaudeMd", "effort", "isolation", "color", "initialPrompt",
+    "experimental",
 }
 MODEL_VALUES = {"sonnet", "opus", "haiku", "fable", "inherit"}
 SKILL_KEYS = {"name", "description", "allowed-tools", "metadata", "disable-model-invocation", "license"}
+
+# Reference: https://code.claude.com/docs/en/hooks  (lifecycle table)
+# A misspelled event name never fires and is never reported — the same silent
+# class as an unrecognised agent key. /audit refreshes this.
+HOOK_EVENTS = {
+    "SessionStart", "Setup", "UserPromptSubmit", "UserPromptExpansion", "PreToolUse",
+    "PermissionRequest", "PermissionDenied", "PostToolUse", "PostToolUseFailure",
+    "PostToolBatch", "Notification", "MessageDisplay", "SubagentStart", "SubagentStop",
+    "TaskCreated", "TaskCompleted", "Stop", "StopFailure", "TeammateIdle",
+    "InstructionsLoaded", "ConfigChange", "CwdChanged", "DirectoryAdded", "FileChanged",
+    "WorktreeCreate", "WorktreeRemove", "PreCompact", "PostCompact", "PreModelSwitch",
+    "PostModelSwitch", "Elicitation", "ElicitationResult", "SessionEnd",
+}
+HOOK_TYPES = {"command", "http", "mcp_tool", "prompt", "agent"}
+# Events whose matcher filters a tool name. Elsewhere a matcher is either a
+# different axis entirely or silently ignored.
+TOOL_MATCHER_EVENTS = {
+    "PreToolUse", "PostToolUse", "PostToolUseFailure", "PermissionRequest", "PermissionDenied",
+}
 
 STALE_GUARD_DAYS = 90   # a guarded path nobody writes to is a dead guard
 STALE_AUDIT_DAYS = 60   # vendor drift outruns this
@@ -199,6 +219,74 @@ def check_syntax():
             err("syntax", f"{os.path.relpath(f, ROOT)}: shell syntax error")
 
 
+# ---------------------------------------------------------------- hooks
+def check_hooks():
+    """Validate settings.json hooks against the current Claude Code reference.
+
+    A hook is the framework's only real enforcement mechanism, and every way it
+    can be wrong is silent: an unknown event name never fires, an unknown
+    handler type never runs, and a tool matcher that doesn't match any live tool
+    name enforces nothing while looking entirely correct. The 2026-11 audit
+    found exactly that — a matcher pinned to `mcp__figma` that cannot match a
+    server registered as `Figma`.
+    """
+    p = f"{ROOT}/.claude/settings.json"
+    if not os.path.exists(p):
+        return
+    try:
+        cfg = json.load(open(p, encoding="utf-8"))
+    except Exception:
+        return  # check_syntax already reported it
+
+    for event, groups in (cfg.get("hooks") or {}).items():
+        if event not in HOOK_EVENTS:
+            err("hooks", f"settings.json: '{event}' is not a Claude Code hook event — "
+                         "it will never fire, and nothing reports that")
+            continue
+        if not isinstance(groups, list):
+            err("hooks", f"settings.json: {event} must be a list of matcher groups")
+            continue
+        for group in groups:
+            if not isinstance(group, dict):
+                continue
+            matcher = group.get("matcher", "")
+
+            if matcher and event not in TOOL_MATCHER_EVENTS and event != "SessionStart":
+                warn("hooks", f"settings.json: {event} matcher '{matcher}' — confirm this "
+                              "event filters on the axis you think it does; an unsupported "
+                              "matcher is silently ignored")
+
+            # A tool matcher naming an MCP server pins that server's exact
+            # spelling. The same server is registered as both `figma` and
+            # `Figma` depending on how it was added, and the matcher is a
+            # case-sensitive regex, so one spelling silently enforces nothing.
+            if event in TOOL_MATCHER_EVENTS and "mcp__" in matcher:
+                for server in re.findall(r"mcp__([A-Za-z0-9_]+)", matcher):
+                    if "[" not in matcher:
+                        warn("hooks", f"settings.json: {event} matcher pins MCP server "
+                                      f"'{server}' in one casing. Matchers are "
+                                      "case-sensitive regexes and the same server is "
+                                      "registered as both 'figma' and 'Figma' — use a "
+                                      "character class like mcp__[Ff]igma")
+                        break
+
+            for h in group.get("hooks") or []:
+                if not isinstance(h, dict):
+                    continue
+                t = h.get("type")
+                if t not in HOOK_TYPES:
+                    err("hooks", f"settings.json: {event} has a hook of type '{t}', which "
+                                 f"Claude Code does not recognise — valid: {sorted(HOOK_TYPES)}")
+                    continue
+                if t == "command" and not h.get("command"):
+                    err("hooks", f"settings.json: {event} command hook has no command")
+                # Prompt hooks default to a 30s timeout; one that must read a
+                # file and verify against it can exceed that and be cancelled.
+                if t == "prompt" and "timeout" not in h and len(h.get("prompt", "")) > 400:
+                    warn("hooks", f"settings.json: {event} prompt hook is long but sets no "
+                                  "timeout — the default is 30s, after which it is cancelled")
+
+
 # ---------------------------------------------------------------- references
 def check_references():
     pattern = re.compile(r"`((?:templates|hooks|docs|projects|audit)/[\w./ -]+|\.claude/(?:skills|agents)/[\w./-]+)`")
@@ -215,7 +303,16 @@ def check_references():
 
 
 # ---------------------------------------------------------------- projects
-def check_projects():
+def check_projects(repo_only=False):
+    """Validate project configuration.
+
+    Some of this is about the repo and some is about the machine. A project's
+    `canonicalDocs` and `hostProjectPath` point at directories on the
+    designer's own computer, so a cloud or CI checkout cannot judge them: every
+    one reads as missing, which is exactly the noise `--repo-only` exists to
+    suppress. The structural checks below still run everywhere; only the
+    does-this-path-exist ones are skipped.
+    """
     cfgs = sorted(glob.glob(f"{ROOT}/projects/*/project.json"))
     dirs = [d for d in sorted(glob.glob(f"{ROOT}/projects/*/")) if os.path.isdir(d)]
     for d in dirs:
@@ -232,6 +329,8 @@ def check_projects():
         for label, p in (d.get("canonicalDocs") or {}).items():
             if label.startswith("_") or not isinstance(p, str):
                 continue
+            if repo_only:
+                continue  # host path — not judgeable from a checkout
             if not os.path.exists(os.path.expanduser(p)):
                 warn("projects", f"{name}: canonicalDocs.{label} points at {p}, which does not exist")
 
@@ -245,6 +344,8 @@ def check_projects():
         if not host:
             warn("projects", f"{name}: prototype.json has no hostProjectPath")
             continue
+        if repo_only:
+            continue  # host path — not judgeable from a checkout
         if not os.path.isdir(host):
             err("projects", f"{name}: hostProjectPath {d['hostProjectPath']} does not exist — "
                             "the drift check can never fire and /prototype cannot run")
@@ -318,8 +419,9 @@ def main():
     # the fastest way to teach someone to ignore the output.
     la, ls, broken = (0, 0, 0) if repo_only else check_install(n_agents, skill_names)
     check_syntax()
+    check_hooks()
     check_references()
-    check_projects()
+    check_projects(repo_only)
     tool_names = check_currency()
     check_readme(n_agents, n_skills)
 

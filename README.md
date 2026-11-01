@@ -109,7 +109,9 @@ The test is real, not decorative: one project in this repo uses large radii and 
 
 ### 2. File quality is enforced, not documented
 
-A `PostToolUse` hook runs after every design-file write and checks against the canvas standards. A second hook guards prototype paths each project declares, so translated screens can't quietly become authored ones.
+A `PostToolUse` hook runs after a design-file write and checks against the canvas standards. A second hook guards prototype paths each project declares, so translated screens can't quietly become authored ones.
+
+The first hook has a real limit worth stating: a hook matcher is a regex over tool names, so it can only name the vendor's write tools, not express "any write." That enumeration goes stale whenever the vendor adds a write path, and a matcher that matches nothing fails silently. `doctor.py` now checks it rather than trusting it.
 
 Most frameworks document standards. This one enforces them — and where a rule can't be enforced, it says so rather than pretending.
 

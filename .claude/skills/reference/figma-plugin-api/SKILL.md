@@ -7,7 +7,7 @@ description: The small set of Figma behaviors this framework has hit that the of
 
 **Load `figma-use` first. It is the source of truth for the Plugin API.**
 
-Figma ships and maintains its own skills (`figma-use`, `figma-generate-design`, `figma-generate-library`, `figma-code-connect`, `figma-design-to-code`, and others), including a large, frequently-updated gotchas reference. Figma's own documentation instructs clients to install them. They are versioned with the API; this file is not.
+Figma ships and maintains its own skills — read the live index at `skill://index.json` rather than any list written down here. Among them `figma-use` carries a gotchas reference of roughly a thousand lines, updated far more often than this repo. They are versioned with the API; this file is not.
 
 **So this file is deliberately short.** It holds only what this framework has hit that the official references do not address. If something here ever starts contradicting the official skills, **the official skills win** and the entry here should be deleted.
 
@@ -34,7 +34,9 @@ Each comment carries `message`, `user.handle`, `resolved_at`, `parent_id`, `orde
 
 A file in a team where the user holds a **View seat** refuses every write and caps reads at a low monthly quota. Duplicating the file does not help — the seat follows the team, not the file.
 
-**Detect it early.** An unexplained permission error on a *first* write is usually the seat, not the script. The path forward is a local plugin running in the desktop app under the user's own session, or a copy in a team where they hold an Editor seat. Do not spend a session debugging code that was never going to be allowed to run.
+**Detect it with the vendor's own tool.** On any permission error or rate limit, call `whoami` — it returns the user's plans and their seat on each, which answers this definitively. Do not infer the seat from the shape of the error.
+
+What the vendor does not tell you is what to do about it: the path forward is a local plugin running in the desktop app under the user's own session, or a copy in a team where they hold an Editor seat. Do not spend a session debugging code that was never going to be allowed to run.
 
 ---
 

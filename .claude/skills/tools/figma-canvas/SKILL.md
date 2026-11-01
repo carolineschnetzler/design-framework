@@ -7,7 +7,7 @@ description: The canvas quality standards every design file in this framework is
 
 **This file is policy, not API documentation.**
 
-Figma ships and maintains its own skills for *how* to drive the canvas — `figma-use` for writes, `figma-generate-library` for building systems, `figma-generate-design` for composing views, `figma-design-to-code` for reading designs out. Load those for mechanics. They are versioned with the API and updated continuously; anything this framework restates about them will be wrong within weeks.
+Figma ships and maintains its own skills for *how* to drive the canvas. **Read the live index at `skill://index.json` and load the ones your task needs** — `figma-use` is mandatory before any write, and the index tells you what else applies, including surfaces this file does not discuss (FigJam, Slides, motion, shaders, specs). Do not work from a remembered list of skill names: they are versioned with the API and the set grows. Anything this framework restates about their mechanics will be wrong within weeks.
 
 What follows is the standard the *work* is held to, regardless of how the API changes to meet it. Where a vendor skill and this file appear to conflict: **the vendor skill wins on mechanics, this file wins on policy.**
 
