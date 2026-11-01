@@ -2,7 +2,22 @@
 name: heuristic-evaluator
 description: Evaluates designs for usability and intuitiveness using established heuristic frameworks
 model: sonnet
-disallowedTools: Write, Edit, NotebookEdit, mcp__figma__use_figma, mcp__figma__generate_figma_design, mcp__figma__create_new_file
+disallowedTools:
+  - Write
+  - Edit
+  - NotebookEdit
+  - mcp__figma__use_figma
+  - mcp__Figma__use_figma
+  - mcp__figma__generate_figma_design
+  - mcp__Figma__generate_figma_design
+  - mcp__figma__create_new_file
+  - mcp__Figma__create_new_file
+  - mcp__figma__html_to_figma
+  - mcp__Figma__html_to_figma
+  - mcp__figma__send_code_to_figma
+  - mcp__Figma__send_code_to_figma
+  - mcp__figma__generate_image
+  - mcp__Figma__generate_image
 skills: design-principles
 color: red
 ---

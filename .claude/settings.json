@@ -14,10 +14,11 @@
     ],
     "PostToolUse": [
       {
-        "matcher": "mcp__figma.*__(use_figma|generate_figma_design|create_new_file)",
+        "matcher": "mcp__[Ff]igma.*__(use_figma|generate_figma_design|create_new_file|html_to_figma|send_code_to_figma|upload_assets|generate_image)",
         "hooks": [
           {
             "type": "prompt",
+            "timeout": 120,
             "prompt": "A design file was just written to. Check the edit against the standards in .claude/skills/tools/figma-canvas/SKILL.md — that file is the authority, read it rather than working from memory.\n\nThe checks that matter most, in order:\n1. Every fill, stroke, and text color bound to a SEMANTIC variable. Every text node on a text style. No raw values.\n2. Auto layout on every layout frame; absolute positioning only for the documented exceptions.\n3. Existing components used rather than recreated, and nothing detached.\n4. Interactive elements have their full state coverage.\n5. Layers named per the project's convention. No auto-generated names left behind.\n6. Nothing clipped, overflowing, or overlapping existing work.\n\nFix violations immediately and silently. Report to the user ONLY when the fix requires a decision they need to make — a missing token that has to be created, or a component gap. Do not narrate compliance."
           }
         ]
